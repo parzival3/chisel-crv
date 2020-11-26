@@ -1,0 +1,5 @@
+package crv
+
+trait VerificationContext {
+
+}

@@ -1,18 +1,30 @@
 package backends.jacop
 
 import org.jacop.core.IntDomain
-import org.jacop.scala.{Model, getModel}
-import org.jacop.search.{ComparatorVariable, DepthFirstSearch, Indomain, IndomainRandom, MostConstrainedDynamic, PrintOutListener, SelectChoicePoint, SimpleMatrixSelect, SimpleSelect, SimpleSolutionListener, SolutionListener}
+import org.jacop.scala.{getModel, Model}
+import org.jacop.search.{
+  ComparatorVariable,
+  DepthFirstSearch,
+  Indomain,
+  IndomainRandom,
+  PrintOutListener,
+  SelectChoicePoint,
+  SimpleSelect,
+  SimpleSolutionListener,
+  SolutionListener
+}
 
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
 object RandObj {
 
+  val label = new DepthFirstSearch[Rand]
+
   private def search[A <: Rand](
     vars:      Iterable[A],
     heuristic: ComparatorVariable[A],
-    indom:     Indomain[A],
+    indom:     Indomain[A]
   )(
     implicit m: ClassTag[A]
   ): SelectChoicePoint[A] =
@@ -20,25 +32,24 @@ object RandObj {
 
   private val addLabelFun = new ThreadLocal[mutable.Buffer[DepthFirstSearch[_ <: org.jacop.core.Var]]]
 
-  private def dfs[A <: Rand](all: Boolean): DepthFirstSearch[A] = {
-    val label = new DepthFirstSearch[A]
+  private def dfs(all: Boolean): DepthFirstSearch[Rand] = {
 
     label.setAssignSolution(true)
-    label.setSolutionListener(new PrintOutListener[A]())
+    label.setSolutionListener(new PrintOutListener[Rand]())
     if (all)
       label.getSolutionListener.searchAll(true)
 
     label
   }
 
-  private def satisfySearch[A <: Rand](
-    select:   SelectChoicePoint[A],
-    listener: SolutionListener[A],
-    model: Model
+  private def satisfySearch(
+    select:   SelectChoicePoint[Rand],
+    listener: SolutionListener[Rand],
+    model:    Model
   ): Boolean = {
     model.imposeAllConstraints()
 
-    val label = dfs[A](all = false)
+    val label = dfs(all = false)
     label.setAssignSolution(true)
     label.setPrintInfo(false)
     addLabel(label)
@@ -62,11 +73,11 @@ class RandObj(r: Int = new util.Random().nextInt()) extends crv.RandObj {
   implicit val current: RandObj = this
   implicit def primitiveToConstraint(constraint: org.jacop.constraints.PrimitiveConstraint): Constraint =
     new Constraint(constraint)
-  private val heuristic = new MostConstrainedDynamic[Rand]()
-  private var listener = new SimpleSolutionListener[backends.jacop.Rand]
+  private var n = 0
+  private val heuristic = new RandomComparator[Rand](r + n)
+  private val listener = new SimpleSolutionListener[backends.jacop.Rand]
   private val domainDatabase = mutable.Map[Rand, IntDomain]()
   private var problemVariables = List[Rand]()
-  private var n = 0
 
   def resetDomains(): Unit = {
     domainDatabase.foreach(k => k._1.domain.setDomain(k._2))
@@ -78,13 +89,15 @@ class RandObj(r: Int = new util.Random().nextInt()) extends crv.RandObj {
     * @return Boolean the result of the current randomization
     */
   override def randomize: Boolean = {
-      problemVariables = model.vars.filter(x => x.isInstanceOf[Rand]).map(_.asInstanceOf[Rand]).toList
-      problemVariables.foreach(x => domainDatabase += (x -> x.domain.cloneLight()))
-      listener = new SimpleSolutionListener[backends.jacop.Rand]
-      n += 1
-      RandObj.satisfySearch(
-        RandObj.search(problemVariables, heuristic, new IndomainRandom[Rand](r + n)),
-        listener, model
-      )
-    }
+    problemVariables = model.vars.filter(x => x.isInstanceOf[Rand]).map(_.asInstanceOf[Rand]).toList
+    problemVariables.foreach(x => domainDatabase += (x -> x.domain.cloneLight()))
+    // listener = new SimpleSolutionListener[backends.jacop.Rand]
+    n += 1
+    model.setLevel(n)
+    RandObj.satisfySearch(
+      RandObj.search(problemVariables, heuristic, new IndomainRandom[Rand](new util.Random(r + n).nextInt())),
+      listener,
+      model
+    )
+  }
 }

@@ -11,13 +11,14 @@ class TestRandJacop extends FlatSpec with VerificationContext {
       var size = new Rand("size", min, max)
       var len = new Rand("len", min, max)
       var z: Constraint = len #>= size
+      val x: Constraint = len #<= size
       var y: Constraint = len #> 4
       val payload = Array.tabulate(11)(i => new Rand("byte[" + i + "]", 1, 100))
-
       payload(0) #= (len + size)
     }
 
     val myPacket = new Packet
+    myPacket.x.disable()
     assert(myPacket.randomize)
     assert(myPacket.len.value() >= myPacket.size.value())
     println(myPacket.len)
@@ -33,6 +34,11 @@ class TestRandJacop extends FlatSpec with VerificationContext {
     myPacket.payload.foreach(println)
     println(myPacket.len)
     println(myPacket.size)
+    myPacket.y.disable()
+    myPacket.x.enable()
+    myPacket.randomize
+    assert(myPacket.len.value() <= myPacket.size.value())
+    myPacket.debug()
 
   }
 }

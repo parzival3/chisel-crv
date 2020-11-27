@@ -9,13 +9,11 @@ class Constraint(private val constraint: org.jacop.constraints.PrimitiveConstrai
   override def disable(): Unit = {
     randObj.model.constr -= constraint
     constraint.removeConstraint()
-    randObj.resetDomains()
   }
 
   override def enable(): Unit = {
     randObj.model.constr += constraint
     randObj.model.addChanged(constraint)
-    randObj.resetDomains()
   }
 
   /**

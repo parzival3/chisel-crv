@@ -7,18 +7,14 @@ import org.jacop.core.{Store, Var}
 class Constraint(private val constraint: org.jacop.constraints.PrimitiveConstraint)(implicit randObj: RandObj) extends crv.Constraint {
 
   def disable(): Unit = {
-    println(randObj.model.constr)
     randObj.model.constr -= constraint
     constraint.removeConstraint()
-    println(randObj.model.constr)
     randObj.initialized = false
     randObj.resetDomains()
   }
 
   def enable(): Unit = {
-    randObj.initialized = false
     randObj.model.constr += constraint
-    randObj.model.impose(constraint)
     randObj.model.addChanged(constraint)
     randObj.resetDomains()
   }

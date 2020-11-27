@@ -2,9 +2,9 @@ package backends.jacop
 
 import org.jacop.constraints.XplusYeqZ
 import org.jacop.core.IntDomain
-import org.jacop.scala.{Model2, getModel}
+import org.jacop.scala.{Model, getModel}
 
-class Rand(name: String, min: Int, max: Int)(implicit val model: Model2) extends backends.jacop.IntVar(name, min, max)(model) with crv.Rand {
+class Rand(name: String, min: Int, max: Int)(implicit val model: Model) extends org.jacop.scala.IntVar(name, min, max) with crv.Rand {
 
   /**
    * Defines the add constraint between two Rand variables

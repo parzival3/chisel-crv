@@ -1,28 +1,28 @@
 package backends.jacop
 
 import org.jacop.core.{Domain, IntDomain}
-import org.jacop.scala.{Model2}
-import org.jacop.search.{ComparatorVariable, DepthFirstSearch, Indomain, IndomainRandom, PrintOutListener, SelectChoicePoint, SimpleSelect, SimpleSolutionListener, SolutionListener}
+import org.jacop.scala.{getModel, Model}
+import org.jacop.search.{
+  ComparatorVariable,
+  DepthFirstSearch,
+  Indomain,
+  IndomainRandom,
+  PrintOutListener,
+  SelectChoicePoint,
+  SimpleSelect,
+  SimpleSolutionListener,
+  SolutionListener
+}
 
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
-class RandObj(r: Int = new util.Random().nextInt()) extends crv.RandObj {
-
-  implicit val model: Model2 = new Model2
-  implicit val current = this
-  implicit def primitiveToConstraint(constraint: org.jacop.constraints.PrimitiveConstraint): Constraint = new Constraint(constraint)
-  var initialized = false
-  private var currentSolution = 0
-  private var listener = new SimpleSolutionListener[backends.jacop.Rand]
-  private val domainDatabase = mutable.Map[Rand, IntDomain]()
-  private var problemVariables = List[Rand]()
-  // private var numberOfConstraint = model.numberConstraints()
+object RandObj {
 
   private def search[A <: Rand](
     vars:      Iterable[A],
     heuristic: ComparatorVariable[A],
-    indom:     Indomain[A]
+    indom:     Indomain[A],
   )(
     implicit m: ClassTag[A]
   ): SelectChoicePoint[A] =
@@ -43,8 +43,8 @@ class RandObj(r: Int = new util.Random().nextInt()) extends crv.RandObj {
 
   private def satisfySearch[A <: Rand](
     select:   SelectChoicePoint[A],
-    listener: SolutionListener[A]
-  )(model:    Model2
+    listener: SolutionListener[A],
+    model: Model
   ): Boolean = {
     model.imposeAllConstraints()
 
@@ -64,6 +64,21 @@ class RandObj(r: Int = new util.Random().nextInt()) extends crv.RandObj {
     val b = addLabelFun.get()
     if (b != null) b += label
   }
+}
+
+class RandObj(r: Int = new util.Random().nextInt()) extends crv.RandObj {
+
+  implicit val model: Model = getModel
+
+  // We need a reference to the Parent RandomObj in order to enable or disable a constraint
+  implicit val current: RandObj = this
+  implicit def primitiveToConstraint(constraint: org.jacop.constraints.PrimitiveConstraint): Constraint =
+    new Constraint(constraint)
+  var initialized = false
+  private var currentSolution = 0
+  private var listener = new SimpleSolutionListener[backends.jacop.Rand]
+  private val domainDatabase = mutable.Map[Rand, IntDomain]()
+  private var problemVariables = List[Rand]()
 
   def resetDomains(): Unit = {
     domainDatabase.foreach(k => k._1.domain.setDomain(k._2))
@@ -77,14 +92,16 @@ class RandObj(r: Int = new util.Random().nextInt()) extends crv.RandObj {
   override def randomize: Boolean = {
     if (!initialized) {
       initialized = true
-      model.setLevel(model.level + 1)
       problemVariables = model.vars.filter(x => x.isInstanceOf[Rand]).map(_.asInstanceOf[Rand]).toList
       problemVariables.foreach(x => domainDatabase += (x -> x.domain.cloneLight()))
       listener = new SimpleSolutionListener[backends.jacop.Rand]
-      println(model.countConstraint())
       listener.solutions = Array.ofDim[Domain](100, 100)
-      satisfySearch(search(problemVariables, null, new IndomainRandom[Rand](r + model.level)), listener)(model)
-      println("Hello from here")
+
+      RandObj.satisfySearch(
+        RandObj.search(problemVariables, null, new IndomainRandom[Rand](r + model.level)),
+        listener, model
+      )
+
       listener.assignSolution(model, currentSolution)
     } else if (initialized && currentSolution < listener.solutions.length) {
       currentSolution += 1

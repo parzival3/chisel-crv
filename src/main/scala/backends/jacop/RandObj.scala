@@ -1,18 +1,8 @@
 package backends.jacop
 
-import org.jacop.core.{Domain, IntDomain}
-import org.jacop.scala.{getModel, Model}
-import org.jacop.search.{
-  ComparatorVariable,
-  DepthFirstSearch,
-  Indomain,
-  IndomainRandom,
-  PrintOutListener,
-  SelectChoicePoint,
-  SimpleSelect,
-  SimpleSolutionListener,
-  SolutionListener
-}
+import org.jacop.core.IntDomain
+import org.jacop.scala.{Model, getModel}
+import org.jacop.search.{ComparatorVariable, DepthFirstSearch, Indomain, IndomainRandom, MostConstrainedDynamic, PrintOutListener, SelectChoicePoint, SimpleMatrixSelect, SimpleSelect, SimpleSolutionListener, SolutionListener}
 
 import scala.collection.mutable
 import scala.reflect.ClassTag
@@ -48,15 +38,13 @@ object RandObj {
   ): Boolean = {
     model.imposeAllConstraints()
 
-    val label = dfs[A](all = true)
-    label.setAssignSolution(false)
+    val label = dfs[A](all = false)
+    label.setAssignSolution(true)
     label.setPrintInfo(false)
     addLabel(label)
     label.setSolutionListener(listener)
     val lbList = label.getSolutionListener
-    lbList.searchAll(true)
-    lbList.recordSolutions(true)
-
+    lbList.searchAll(false)
     label.labeling(model, select)
   }
 
@@ -74,11 +62,11 @@ class RandObj(r: Int = new util.Random().nextInt()) extends crv.RandObj {
   implicit val current: RandObj = this
   implicit def primitiveToConstraint(constraint: org.jacop.constraints.PrimitiveConstraint): Constraint =
     new Constraint(constraint)
-  var initialized = false
-  private var currentSolution = 0
+  private val heuristic = new MostConstrainedDynamic[Rand]()
   private var listener = new SimpleSolutionListener[backends.jacop.Rand]
   private val domainDatabase = mutable.Map[Rand, IntDomain]()
   private var problemVariables = List[Rand]()
+  private var n = 0
 
   def resetDomains(): Unit = {
     domainDatabase.foreach(k => k._1.domain.setDomain(k._2))
@@ -90,28 +78,13 @@ class RandObj(r: Int = new util.Random().nextInt()) extends crv.RandObj {
     * @return Boolean the result of the current randomization
     */
   override def randomize: Boolean = {
-    if (!initialized) {
-      initialized = true
       problemVariables = model.vars.filter(x => x.isInstanceOf[Rand]).map(_.asInstanceOf[Rand]).toList
       problemVariables.foreach(x => domainDatabase += (x -> x.domain.cloneLight()))
       listener = new SimpleSolutionListener[backends.jacop.Rand]
-      listener.solutions = Array.ofDim[Domain](100, 100)
-
+      n += 1
       RandObj.satisfySearch(
-        RandObj.search(problemVariables, null, new IndomainRandom[Rand](r + model.level)),
+        RandObj.search(problemVariables, heuristic, new IndomainRandom[Rand](r + n)),
         listener, model
       )
-
-      listener.assignSolution(model, currentSolution)
-    } else if (initialized && currentSolution < listener.solutions.length) {
-      currentSolution += 1
-      resetDomains()
-      domainDatabase.foreach(k => k._1.domain.setDomain(k._2))
-      println(domainDatabase)
-      listener.assignSolution(model, currentSolution)
-      true
-    } else {
-      false
     }
-  }
 }

@@ -1,10 +1,10 @@
 package backends.jacop
 
-import org.jacop.constraints.XplusYeqZ
-import org.jacop.core.IntDomain
-import org.jacop.scala.{Model, getModel}
+import org.jacop.constraints.{XeqY, XplusYeqZ}
+import org.jacop.core.{IntDomain, IntVar}
+import org.jacop.scala.{getModel}
 
-class Rand(name: String, min: Int, max: Int)(implicit val model: Model) extends org.jacop.scala.IntVar(name, min, max) with crv.Rand {
+class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj) extends org.jacop.scala.IntVar(name, min, max) with crv.Rand {
 
   /**
    * Defines the add constraint between two Rand variables
@@ -18,6 +18,23 @@ class Rand(name: String, min: Int, max: Int)(implicit val model: Model) extends 
      getModel.constr += c
      getModel.n += 1
      result
+  }
+
+  /**
+   * Defines equation constraint between two IntVar.
+   *
+   * @param that a second parameter for equation constraint.
+   * @return the defined constraint.
+   */
+  def #=(that: crv.Rand): Constraint = {
+    that match {
+      case v: backends.jacop.Rand => {
+        val c = new XeqY(this, v.asInstanceOf[IntVar])
+        getModel.constr += c
+        new Constraint(c)
+      }
+      case _ => throw new Exception("Can't mix in two different backends")
+    }
   }
 
   /**

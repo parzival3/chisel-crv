@@ -1,7 +1,7 @@
 package backends.jacop
 
 import org.jacop.core.IntDomain
-import org.jacop.scala.{Model, getModel}
+import org.jacop.scala.{Model}
 import org.jacop.search.{ComparatorVariable, DepthFirstSearch, Indomain, IndomainRandom, PrintOutListener, SelectChoicePoint, SimpleSelect, SimpleSolutionListener, SolutionListener}
 
 import scala.collection.mutable

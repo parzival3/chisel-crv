@@ -1,6 +1,6 @@
 package crv
 
-trait Constraint {
-  def enable(): Unit
-  def disable(): Unit
+abstract class Constraint {
+  abstract def enable(): Unit
+  abstract def disable(): Unit
 }

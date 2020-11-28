@@ -1,5 +1,6 @@
 package backends.jacop
 
+import crv.ConstraintGroup
 import org.scalatest.FlatSpec
 
 class TestRandJacop extends FlatSpec with VerificationContext {
@@ -186,5 +187,31 @@ class TestRandJacop extends FlatSpec with VerificationContext {
     myPacket.randomize
     assert(myPacket.payload(0) > myPacket.len)
     assert(myPacket.payload(1) > 3)
+  }
+
+  it should "be able to add Constraint Groups" in {
+
+    class Packet extends RandObj(3) {
+      val min = 1
+      val max = 100
+      val len = new Rand("len", min, max)
+      val payload: Array[Rand] = Array.tabulate(11)(i => new Rand("byte[" + i + "]", min, max))
+      val cgroup: ConstraintGroup = new ConstraintGroup {
+        payload(0) #> len
+        payload(1) #> 98
+      }
+
+      val negc: crv.Constraint = payload(1) #< 98
+      negc.disable()
+    }
+
+    val myPacket = new Packet
+    assert(myPacket.randomize)
+    assert(myPacket.payload(0) > myPacket.len)
+    assert(myPacket.payload(1) > 98)
+    myPacket.cgroup.disable()
+    myPacket.cgroup.enable()
+    assert(myPacket.randomize)
+    assert(myPacket.payload(1) < 98)
   }
 }

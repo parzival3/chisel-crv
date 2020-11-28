@@ -3,3 +3,8 @@
 /project/project/
 /.idea/
 /.bsp/
+/.bloop/
+/.metals/
+/.vscode/
+/project/.bloop/
+/project/metals.sbt

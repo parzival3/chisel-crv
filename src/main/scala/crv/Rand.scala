@@ -10,4 +10,23 @@ trait Rand {
     */
   def +(that: Rand): Rand
 
+  def -(that: Rand): Rand
+
+  def *(that: Rand): Rand
+
+  def div(that: Rand): Rand
+
+  def mod(that: Rand): Rand
+
+  def ^(that: Rand): Rand
+
+  def #\=(that: Rand): Constraint
+
+  def #<(that: Rand): Constraint
+
+  def #<=(that: Rand): Constraint
+
+  def #>(that: Rand): Constraint
+
+  def #>=(that: Rand): Constraint
 }

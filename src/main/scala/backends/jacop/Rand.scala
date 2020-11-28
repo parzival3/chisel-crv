@@ -25,7 +25,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * Defines an anonymous finite domain integer variable.
     *
     * @constructor Creates a new finite domain integer variable with minimal and maximal
-    *              values in the domain defined by org.jacop.
+    *              values in the domain defined by [[org.jacop]]
     * @param name variable's identifier.
     */
   def this(name: String)(implicit obj: RandObj) = {
@@ -37,7 +37,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * Defines an anonymous finite domain integer variable.
     *
     * @constructor Creates a new finite domain integer variable with minimal and maximal
-    *              values in the domain defined by org.jacop.
+    *              values in the domain defined by [[org.jacop]]
     */
   def this()(implicit obj: RandObj) = {
     this(org.jacop.core.IntDomain.MinInt, org.jacop.core.IntDomain.MaxInt)(obj)
@@ -48,7 +48,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * Defines a finite domain integer variable.
     *
     * @constructor Create a new finite domain integer variable with the domain defined by IntSet.
-    * @param dom variable's domain defined as a set of integers (IntSet).
+    * @param dom variable's domain defined as a set of integers [[org.jacop.scala.IntSet]].
     */
   def this(dom: IntSet)(implicit obj: RandObj) = {
     this()(obj)
@@ -62,7 +62,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @constructor Create a new finite domain integer variable with the domain
     *              defined by IntSet.
     * @param name variable's identifier.
-    * @param dom  variable's domain defined as a set of integers (IntSet).
+    * @param dom  variable's domain defined as a set of integers [[org.jacop.scala.IntSet]].
     */
   def this(name: String, dom: IntSet)(implicit obj: RandObj) = {
     this(name)(obj)
@@ -71,10 +71,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines the add constraint between two Rand variables
+    * Defines the add [[Constraint]] between two Rand variables
     *
     * @param that a second parameter for the addition constraint
-    * @return Rand variable being the result of the addition constraint.
+    * @return [[Rand]] variable being the result of the addition [[Constraint]].
     */
   def +(that: backends.jacop.Rand): crv.Rand = {
     val result = new Rand(IntDomain.addInt(this.min(), that.min()), IntDomain.addInt(this.max(), that.max()))
@@ -84,10 +84,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines add constraint between IntVar and an integer value.
+    * Defines add [[Constraint]] between Rand and an integer value.
     *
-    * @param that a second integer parameter for the addition constraint.
-    * @return IntVar variable being the result of the addition constraint.
+    * @param that a second integer parameter for the addition [[Constraint]].
+    * @return [[Rand]] variable being the result of the addition [[Constraint]].
     */
   def +(that: Int): crv.Rand = {
     val result = new Rand(IntDomain.addInt(this.min(), that), IntDomain.addInt(this.max(), that))
@@ -97,10 +97,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines subtract constraint between two IntVar.
+    * Defines subtract [[Constraint]] between two Rand.
     *
-    * @param that a second parameter for the subtraction constraint.
-    * @return IntVar variable being the result of the subtraction constraint.
+    * @param that a second parameter for the subtraction [[Constraint]].
+    * @return [[Rand]] variable being the result of the subtraction [[Constraint]].
     */
   def -(that: backends.jacop.Rand): crv.Rand = {
     val result = new Rand(IntDomain.subtractInt(this.min(), that.max()), IntDomain.subtractInt(this.max(), that.min()))
@@ -110,10 +110,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines subtract constraint between IntVar and an integer value.
+    * Defines subtract [[Constraint]] between [[Rand]] and an integer value.
     *
-    * @param that a second integer parameter for the subtraction constraint.
-    * @return IntVar variable being the result of the subtraction constraint.
+    * @param that a second integer parameter for the subtraction [[Constraint]].
+    * @return [[Rand]] variable being the result of the subtraction [[Constraint]].
     */
   def -(that: Int): crv.Rand = {
     val result = new Rand(IntDomain.subtractInt(this.min(), that), IntDomain.subtractInt(this.max(), that))
@@ -123,10 +123,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines equation constraint between two IntVar.
+    * Defines equation [[Constraint]] between two [[Rand]].
     *
-    * @param that a second parameter for equation constraint.
-    * @return the defined constraint.
+    * @param that a second parameter for equation [[Constraint]].
+    * @return the defined [[Constraint]].
     */
   def #=(that: crv.Rand): crv.Constraint = {
     that match {
@@ -139,10 +139,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines equation constraint between IntVar and a integer constant.
+    * Defines equation [[Constraint]] between [[Rand]] and a integer constant.
     *
-    * @param that a second parameter for equation constraint.
-    * @return the defined constraint.
+    * @param that a second parameter for equation [[Constraint]].
+    * @return the defined [[Constraint]].
     */
   def #=(that: Int): crv.Constraint = {
     val c = new XeqC(this, that)
@@ -151,10 +151,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines the add constraint between two Rand variables
+    * Defines the add [[Constraint]] between two [[Rand]] variables
     *
-    * @param that a second parameter for the addition constraint
-    * @return Rand variable being the result of the addition constraint.
+    * @param that a second parameter for the addition [[Constraint]]
+    * @return [[Rand]] variable being the result of the addition [[Constraint]].
     */
   override def +(that: crv.Rand): crv.Rand = {
     that match {
@@ -164,10 +164,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines subtract constraint between two IntVar.
+    * Defines subtract [[Constraint]] between two [[Rand]].
     *
-    * @param that a second parameter for the subtraction constraint.
-    * @return IntVar variable being the result of the subtraction constraint.
+    * @param that a second parameter for the subtraction [[Constraint]].
+    * @return [[Rand]] variable being the result of the subtraction [[Constraint]].
     */
   def -(that: crv.Rand): crv.Rand = {
     that match {
@@ -177,10 +177,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines multiplication constraint between two IntVar.
+    * Defines multiplication [[Constraint]] between two [[Rand]].
     *
-    * @param that a second parameter for the multiplication constraint.
-    * @return IntVar variable being the result of the multiplication constraint.
+    * @param that a second parameter for the multiplication [[Constraint]].
+    * @return [[Rand]] variable being the result of the multiplication [[Constraint]].
     */
   def *(that: backends.jacop.Rand): crv.Rand = {
     val bounds = IntDomain.mulBounds(this.min(), this.max(), that.min(), that.max())
@@ -191,10 +191,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines multiplication constraint between two IntVar.
+    * Defines multiplication [[Constraint]] between two [[Rand]].
     *
-    * @param that a second parameter for the multiplication constraint.
-    * @return IntVar variable being the result of the multiplication constraint.
+    * @param that a second parameter for the multiplication [[Constraint]].
+    * @return [[Rand]] variable being the result of the multiplication [[Constraint]].
     */
   def *(that: crv.Rand): crv.Rand = {
     that match {
@@ -204,10 +204,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines multiplication constraint between IntVar and an integer value.
+    * Defines multiplication [[Constraint]] between [[Rand]] and an integer value.
     *
-    * @param that a second integer parameter for the multiplication constraint.
-    * @return IntVar variable being the result of the multiplication constraint.
+    * @param that a second integer parameter for the multiplication [[Constraint]].
+    * @return [[Rand]] variable being the result of the multiplication [[Constraint]].
     */
   def *(that: Int): crv.Rand = {
     val bounds = IntDomain.mulBounds(this.min(), this.max(), that, that)
@@ -218,10 +218,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines integer division constraint between two IntVar.
+    * Defines integer division [[Constraint]] between two [[Rand]].
     *
-    * @param that a second parameter for the integer division constraint.
-    * @return IntVar variable being the result of the integer division constraint.
+    * @param that a second parameter for the integer division [[Constraint]].
+    * @return [[Rand]] variable being the result of the integer division [[Constraint]].
     */
   def div(that: backends.jacop.Rand): crv.Rand = {
     val bounds = IntDomain.divBounds(this.min(), this.max(), that.min(), that.max())
@@ -232,10 +232,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines integer division constraint between two IntVar.
+    * Defines integer division [[Constraint]] between two [[Rand]].
     *
-    * @param that a second parameter for the integer division constraint.
-    * @return IntVar variable being the result of the integer division constraint.
+    * @param that a second parameter for the integer division [[Constraint]].
+    * @return [[Rand]] variable being the result of the integer division [[Constraint]].
     */
   def div(that: crv.Rand): crv.Rand = {
     that match {
@@ -245,10 +245,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines constraint for integer reminder from division between two IntVar.
+    * Defines [[Constraint]] for integer reminder from division between two [[Rand]].
     *
-    * @param that a second parameter for integer reminder from division constraint.
-    * @return IntVar variable being the result of the integer reminder from division constraint.
+    * @param that a second parameter for integer reminder from division [[Constraint]].
+    * @return [[Rand]] variable being the result of the integer reminder from division [[Constraint]].
     */
   def mod(that: backends.jacop.Rand): crv.Rand = {
     var reminderMin: Int = 0
@@ -272,10 +272,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines constraint for integer reminder from division between two IntVar.
+    * Defines [[Constraint]] for integer reminder from division between two [[Rand]].
     *
-    * @param that a second parameter for integer reminder from division constraint.
-    * @return IntVar variable being the result of the integer reminder from division constraint.
+    * @param that a second parameter for integer reminder from division [[Constraint]].
+    * @return [[Rand]] variable being the result of the integer reminder from division [[Constraint]].
     */
   def mod(that: crv.Rand): crv.Rand = {
     that match {
@@ -285,10 +285,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines exponentiation constraint between two IntVar.
+    * Defines exponentiation [[Constraint]] between two [[Rand]].
     *
-    * @param that exponent for the exponentiation constraint.
-    * @return IntVar variable being the result of the exponentiation constraint.
+    * @param that exponent for the exponentiation [[Constraint]].
+    * @return [[Rand]] variable being the result of the exponentiation [[Constraint]].
     */
   def ^(that: backends.jacop.Rand): crv.Rand = {
     val result = new Rand()
@@ -298,10 +298,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines exponentiation constraint between two IntVar.
+    * Defines exponentiation [[Constraint]] between two [[Rand]].
     *
-    * @param that exponent for the exponentiation constraint.
-    * @return IntVar variable being the result of the exponentiation constraint.
+    * @param that exponent for the exponentiation [[Constraint]].
+    * @return [[Rand]] variable being the result of the exponentiation [[Constraint]].
     */
   def ^(that: crv.Rand): crv.Rand = {
     that match {
@@ -310,9 +310,9 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines unary "-" constraint for IntVar.
+    * Defines unary "-" [[Constraint]] for [[Rand]].
     *
-    * @return the defined constraint.
+    * @return the defined [[Constraint]].
     */
   def unary_- : Rand = {
     val result = new Rand(-this.max(), -this.min())
@@ -322,10 +322,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines inequality constraint between two IntVar.
+    * Defines inequality [[Constraint]] between two [[Rand]].
     *
-    * @param that a second parameter for inequality constraint.
-    * @return the defined constraint.
+    * @param that a second parameter for inequality [[Constraint]].
+    * @return the defined [[Constraint]].
     */
   def #\=(that: backends.jacop.Rand): crv.Constraint = {
     val c = new XneqY(this, that)
@@ -334,10 +334,23 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines inequality constraint between IntVar and integer constant.
+    * Defines inequality [[Constraint]] between two [[Rand]].
     *
-    * @param that a second parameter for inequality constraint.
-    * @return the defined constraint.
+    * @param that a second parameter for inequality [[Constraint]].
+    * @return the defined [[Constraint]].
+    */
+  def #\=(that: crv.Rand): crv.Constraint = {
+    that match {
+      case v: backends.jacop.Rand => this.#\=(v)
+      case _ => throw new Exception("Can't mix in two different backends")
+    }
+  }
+
+  /**
+    * Defines inequality [[Constraint]] between [[Rand]] and integer constant.
+    *
+    * @param that a second parameter for inequality [[Constraint]].
+    * @return the defined [[Constraint]].
     */
   def #\=(that: Int): crv.Constraint = {
     val c = new XneqC(this, that)
@@ -346,10 +359,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines "less than" constraint between two IntVar.
+    * Defines "less than" [[Constraint]] between two [[Rand]].
     *
-    * @param that a second parameter for "less than" constraint.
-    * @return the defined constraint.
+    * @param that a second parameter for "less than" [[Constraint]].
+    * @return the defined [[Constraint]].
     */
   def #<(that: backends.jacop.Rand): crv.Constraint = {
     val c = new XltY(this, that)
@@ -358,10 +371,23 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines "less than" constraint between IntVar and integer constant.
+    * Defines "less than" [[Constraint]] between two [[Rand]].
     *
-    * @param that a second parameter for "less than" constraint.
-    * @return the equation constraint.
+    * @param that a second parameter for "less than" [[Constraint]].
+    * @return the defined [[Constraint]].
+    */
+  def #<(that: crv.Rand): crv.Constraint = {
+    that match {
+      case v: backends.jacop.Rand => this.#<(v)
+      case _ => throw new Exception("Can't mix in two different backends")
+    }
+  }
+
+  /**
+    * Defines "less than" [[Constraint]] between [[Rand]] and integer constant.
+    *
+    * @param that a second parameter for "less than" [[Constraint]].
+    * @return the equation [[Constraint]].
     */
   def #<(that: Int): crv.Constraint = {
     val c = new XltC(this, that)
@@ -370,10 +396,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines "less than or equal" constraint between two IntVar.
+    * Defines "less than or equal" [[Constraint]] between two [[Rand]].
     *
-    * @param that a second parameter for "less than or equal" constraint.
-    * @return the defined constraint.
+    * @param that a second parameter for "less than or equal" [[Constraint]].
+    * @return the defined [[Constraint]].
     */
   def #<=(that: backends.jacop.Rand): crv.Constraint = {
     val c = new XlteqY(this, that)
@@ -382,10 +408,23 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines "less than or equal" constraint between IntVar and integer constant.
+    * Defines "less than or equal" [[Constraint]] between two [[Rand]].
     *
-    * @param that a second parameter for "less than or equal" constraint.
-    * @return the equation constraint.
+    * @param that a second parameter for "less than or equal" [[Constraint]].
+    * @return the defined [[Constraint]].
+    */
+  def #<=(that: crv.Rand): crv.Constraint = {
+    that match {
+      case v: backends.jacop.Rand => this.#<=(v)
+      case _ => throw new Exception("Can't mix in two different backends")
+    }
+  }
+
+  /**
+    * Defines "less than or equal" [[Constraint]] between [[Rand]] and integer constant.
+    *
+    * @param that a second parameter for "less than or equal" [[Constraint]].
+    * @return the equation [[Constraint]].
     */
   def #<=(that: Int): crv.Constraint = {
     val c = new XlteqC(this, that)
@@ -394,10 +433,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines "greater than" constraint between two IntVar.
+    * Defines "greater than" [[Constraint]] between two [[Rand]].
     *
-    * @param that a second parameter for "greater than" constraint.
-    * @return the defined constraint.
+    * @param that a second parameter for "greater than" [[Constraint]].
+    * @return the defined [[Constraint]].
     */
   def #>(that: backends.jacop.Rand): crv.Constraint = {
     val c = new XgtY(this, that)
@@ -406,10 +445,23 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines "greater than" constraint between IntVar and integer constant.
+    * Defines "greater than" [[Constraint]] between two [[Rand]].
     *
-    * @param that a second parameter for "greater than" constraint.
-    * @return the equation constraint.
+    * @param that a second parameter for "greater than" [[Constraint]].
+    * @return the defined [[Constraint]].
+    */
+  def #>(that: crv.Rand): crv.Constraint = {
+    that match {
+      case v: backends.jacop.Rand => this.#>(v)
+      case _ => throw new Exception("Can't mix in two different backends")
+    }
+  }
+
+  /**
+    * Defines "greater than" [[Constraint]] between [[Rand]] and integer constant.
+    *
+    * @param that a second parameter for "greater than" [[Constraint]].
+    * @return the equation [[Constraint]].
     */
   def #>(that: Int): crv.Constraint = {
     val c = new XgtC(this, that)
@@ -418,10 +470,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines "greater than or equal" constraint between two IntVar.
+    * Defines "greater than or equal" [[Constraint]] between two [[Rand]].
     *
-    * @param that a second parameter for "greater than or equal" constraint.
-    * @return the defined constraint.
+    * @param that a second parameter for "greater than or equal" [[Constraint]].
+    * @return the defined [[Constraint]].
     */
   def #>=(that: backends.jacop.Rand): crv.Constraint = {
     val c = new XgteqY(this, that)
@@ -430,10 +482,23 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines "greater than or equal" constraint between IntVar and integer constant.
+    * Defines "greater than or equal" [[Constraint]] between two [[Rand]].
     *
-    * @param that a second parameter for "greater than or equal" constraint.
-    * @return the equation constraint.
+    * @param that a second parameter for "greater than or equal" [[Constraint]].
+    * @return the defined [[Constraint]].
+    */
+  def #>=(that: crv.Rand): crv.Constraint = {
+    that match {
+      case v: backends.jacop.Rand => this.#>=(v)
+      case _ => throw new Exception("Can't mix in two different backends")
+    }
+  }
+
+  /**
+    * Defines "greater than or equal" [[Constraint]] between [[Rand]] and integer constant.
+    *
+    * @param that a second parameter for "greater than or equal" [[Constraint]].
+    * @return the equation [[Constraint]].
     */
   def #>=(that: Int): crv.Constraint = {
     val c = new XgteqC(this, that)
@@ -442,10 +507,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines constraint on inclusion of a IntVar variable value in a set.
+    * Defines [[Constraint]] on inclusion of a [[Rand]] variable value in a set.
     *
     * @param that set that this variable's value must be included.
-    * @return the equation constraint.
+    * @return the equation [[Constraint]].
     */
   def in(that: SetVar): crv.Constraint = {
     if (min == max) {
@@ -460,10 +525,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines constraint on inclusion of a IntVar variable value in a set.
+    * Defines [[Constraint]] on inclusion of a [[Rand]] variable value in a set.
     *
     * @param that set that this variable's value must be included.
-    * @return the equation constraint.
+    * @return the equation [[Constraint]].
     */
   def inside(that: SetVar): crv.Constraint = {
     this.in(that)

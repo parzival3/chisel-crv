@@ -1,5 +1,3 @@
 package crv
 
-class Domain {
-
-}
+class Domain {}

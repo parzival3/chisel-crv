@@ -10,3 +10,5 @@ ThisBuild / libraryDependencies ++= Seq(
   "org.choco-solver" % "choco-solver" % "4.10.5"
 )
 
+coverageEnabled := true
+

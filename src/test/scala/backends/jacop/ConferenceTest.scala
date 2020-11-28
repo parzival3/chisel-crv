@@ -2,8 +2,6 @@ package org.jacop.scala
 
 import org.jacop.scala
 
-
-
 object Conference extends App with jacop {
 
   // session letter
@@ -76,7 +74,7 @@ object Conference extends App with jacop {
   val two = new IntVar("two", 2, 2)
   val three = new IntVar("three", 3, 3)
 
-  val durations = Array.tabulate(11)((i) =>{ println(i); one})
+  val durations = Array.tabulate(11)((i) => { println(i); one })
 
   val resources = Array.tabulate(11)(i => if (i == iJ) two else one)
 

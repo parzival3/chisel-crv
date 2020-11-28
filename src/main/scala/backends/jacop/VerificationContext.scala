@@ -1,4 +1,3 @@
 package backends.jacop
 
-trait VerificationContext extends crv.VerificationContext {
-}
+trait VerificationContext extends crv.VerificationContext {}

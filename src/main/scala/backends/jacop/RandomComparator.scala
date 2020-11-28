@@ -2,7 +2,7 @@ package backends.jacop
 import org.jacop.core.Var
 import org.jacop.search.ComparatorVariable
 
-class RandomComparator[T <: Var](seed: Int) extends  ComparatorVariable[T] {
+class RandomComparator[T <: Var](seed: Int) extends ComparatorVariable[T] {
   val rand = new util.Random(seed)
   override def compare(left: Float, `var`: T): Int = {
     rand.nextInt(1)

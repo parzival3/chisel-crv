@@ -1,5 +1,3 @@
 package backends.chocosolver
 
-class RandObj {
-
-}
+class RandObj {}

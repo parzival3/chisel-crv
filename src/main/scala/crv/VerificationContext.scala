@@ -1,5 +1,3 @@
 package crv
 
-trait VerificationContext {
-
-}
+trait VerificationContext {}

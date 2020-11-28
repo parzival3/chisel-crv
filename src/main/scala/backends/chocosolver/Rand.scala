@@ -1,7 +1,5 @@
 package backends.chocosolver
 
-
-
 //class Rand(name: String, min: Int, max: Int)(implicit val model: Model) extends crv.Rand {
 //val variable = model.intVar(name, min, max)
 //

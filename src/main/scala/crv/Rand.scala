@@ -4,10 +4,10 @@ package crv
 trait Rand {
 
   /**
-   * Defines the add constraint between two Rand variables
+    * Defines the add constraint between two Rand variables
     * @param that a second parameter for the addition constraint
-   * @return Rand variable being the result of the addition constraint.
-   */
+    * @return Rand variable being the result of the addition constraint.
+    */
   def +(that: Rand): Rand
 
 }

@@ -54,8 +54,7 @@ object RandObj {
   }
 }
 
-class RandObj(r: Int = new util.Random().nextInt()) extends crv.RandObj {
-  implicit val model: Model = getModel
+class RandObj(r: Int = new util.Random().nextInt(), implicit val model: Model = new Model) extends crv.RandObj {
 
   // We need a reference to the Parent RandomObj in order to enable or disable a constraint
   implicit val current: RandObj = this

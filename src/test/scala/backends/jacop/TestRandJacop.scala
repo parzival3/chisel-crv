@@ -15,25 +15,34 @@ class TestRandJacop extends FlatSpec with VerificationContext {
       val o:       crv.Constraint = len #>= size
       val y:       crv.Constraint = len #> 4
       val payload: Array[Rand] = Array.tabulate(11)(i => new Rand("byte[" + i + "]", 1, 100))
-      payload(0) #= (len + size)
+      val a = payload(0) #= (len + size)
     }
 
     val myPacket = new Packet
     myPacket.x.disable()
+    println(myPacket.model.n)
+    myPacket.model.vars.foreach(println)
+    println(myPacket.model.constr.size)
+    println(myPacket.model.countConstraint())
     assert(myPacket.randomize)
+    myPacket.debug()
     assert(myPacket.len.value() >= myPacket.size.value())
+    assert(myPacket.payload(0).value() == myPacket.len.value() + myPacket.size.value())
 
     assert(myPacket.randomize)
     assert(myPacket.len.value() >= myPacket.size.value())
+    assert(myPacket.payload(0).value() == myPacket.len.value() + myPacket.size.value())
 
     assert(myPacket.randomize)
     assert(myPacket.len.value() >= myPacket.size.value())
+    assert(myPacket.payload(0).value() == myPacket.len.value() + myPacket.size.value())
 
     myPacket.y.disable()
     myPacket.x.enable()
     myPacket.o.disable()
     myPacket.randomize
     assert(myPacket.len.value() <= myPacket.size.value())
+    assert(myPacket.payload(0).value() == myPacket.len.value() + myPacket.size.value())
   }
 
   it should "be able to subtract two Rand var" in {
@@ -43,7 +52,7 @@ class TestRandJacop extends FlatSpec with VerificationContext {
       val size = new Rand("size", min, max)
       val len = new Rand("len", min, max)
       val payload: Array[Rand] = Array.tabulate(11)(i => new Rand("byte[" + i + "]", 1, 100))
-      payload(0) #= (len - size)
+      val z = payload(0) #= (len - size)
     }
     val myPacket = new Packet
     assert(myPacket.randomize)

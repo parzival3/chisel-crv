@@ -6,10 +6,9 @@ import org.jacop.scala.{IntSet, SetVar}
 import org.jacop.set.constraints.{EinA, XinA}
 
 class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
-    extends org.jacop.core.IntVar(obj.model, name, min, max)
-    with crv.Rand[org.jacop.core.IntVar] {
+    extends org.jacop.core.IntVar(obj.model, name, min, max) {
 
-  override type U = Rand
+  // type U = Rand
   /**
     * Defines an anonymous finite domain integer variable.
     *
@@ -103,7 +102,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for the subtraction [[Constraint]].
     * @return [[Rand]] variable being the result of the subtraction [[Constraint]].
     */
-  override def -(that: Rand): Rand = {
+  def -(that: Rand): Rand = {
     val result = new Rand(IntDomain.subtractInt(this.min(), that.max()), IntDomain.subtractInt(this.max(), that.min()))
     val c = new XplusYeqZ(result, that, this)
     obj.model.constr += c
@@ -141,7 +140,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for the multiplication [[Constraint]].
     * @return [[Rand]] variable being the result of the multiplication [[Constraint]].
     */
-  override def *(that: Rand): Rand = {
+  def *(that: Rand): Rand = {
     val bounds = IntDomain.mulBounds(this.min(), this.max(), that.min(), that.max())
     val result = new Rand(bounds.min(), bounds.max())
     val c = new XmulYeqZ(this, that, result)
@@ -169,7 +168,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for the integer division [[Constraint]].
     * @return [[Rand]] variable being the result of the integer division [[Constraint]].
     */
-  override def div(that: Rand): Rand = {
+   def div(that: Rand): Rand = {
     val bounds = IntDomain.divBounds(this.min(), this.max(), that.min(), that.max())
     val result = new Rand(bounds.min(), bounds.max())
     val c = new XdivYeqZ(this, that, result)
@@ -235,7 +234,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for inequality [[Constraint]].
     * @return the defined [[Constraint]].
     */
-  override def #\=(that: Rand): crv.Constraint = {
+   def #\=(that: Rand): crv.Constraint = {
     val c = new XneqY(this, that)
     obj.model.constr += c
     new Constraint(c)
@@ -259,7 +258,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for "less than" [[Constraint]].
     * @return the defined [[Constraint]].
     */
-  override def #<(that: Rand): crv.Constraint = {
+   def #<(that: Rand): crv.Constraint = {
     val c = new XltY(this, that)
     obj.model.constr += c
     new Constraint(c)
@@ -283,7 +282,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for "less than or equal" [[Constraint]].
     * @return the defined [[Constraint]].
     */
-  override def #<=(that: Rand): crv.Constraint = {
+   def #<=(that: Rand): crv.Constraint = {
     val c = new XlteqY(this, that)
     obj.model.constr += c
     new Constraint(c)
@@ -307,7 +306,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for "greater than" [[Constraint]].
     * @return the defined [[Constraint]].
     */
-  override def #>(that: Rand): crv.Constraint = {
+   def #>(that: Rand): crv.Constraint = {
     val c = new XgtY(this, that)
     obj.model.constr += c
     new Constraint(c)
@@ -331,7 +330,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for "greater than or equal" [[Constraint]].
     * @return the defined [[Constraint]].
     */
-  override def #>=(that: Rand): crv.Constraint = {
+   def #>=(that: Rand): crv.Constraint = {
     val c = new XgteqY(this, that)
     obj.model.constr += c
     new Constraint(c)

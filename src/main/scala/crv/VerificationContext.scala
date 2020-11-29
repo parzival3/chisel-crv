@@ -1,3 +1,5 @@
 package crv
 
-trait VerificationContext {}
+trait VerificationContext {
+  implicit def randcToIn(v: Randc): Int = v.value
+}

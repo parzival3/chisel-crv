@@ -216,4 +216,29 @@ class TestRandJacop extends FlatSpec with VerificationContext {
     assert(myPacket.randomize)
     assert(myPacket.payload(1) < 98)
   }
+
+  it should "be possible to add Randc variables" in {
+
+    class Packet extends RandObj {
+      val min = 1
+      val max = 100
+      val len = new Rand("len", min, max)
+      val randc = new Randc(min, max)
+      val payload: Array[Rand] = Array.tabulate(11)(i => new Rand("byte[" + i + "]", min, max))
+      val cgroup: ConstraintGroup = new ConstraintGroup {
+        payload(0) #> len
+        payload(1) #> 98
+      }
+
+      val negc: crv.Constraint = payload(1) #< 98
+      negc.disable()
+    }
+
+    val myPacket = new Packet
+    assert(myPacket.randomize)
+    val z: Int = myPacket.randc
+    assert(myPacket.randomize)
+    val x: Int = if (z == myPacket.max) myPacket.min else z + 1
+    assert(myPacket.randc.value() == x)
+  }
 }

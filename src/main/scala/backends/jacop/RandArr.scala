@@ -1,5 +1,4 @@
 package backends.jacop
-import org.jacop.scala.Model
 
 class RandArr(implicit model: Model) extends RandObj {
   var size: Rand = new Rand("size")

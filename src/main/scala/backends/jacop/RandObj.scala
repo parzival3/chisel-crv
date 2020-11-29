@@ -1,7 +1,6 @@
 package backends.jacop
 
 import org.jacop.core.IntDomain
-import org.jacop.scala.Model
 import org.jacop.search.{
   DepthFirstSearch,
   IndomainRandom,
@@ -90,6 +89,7 @@ class RandObj(r: Int = new util.Random().nextInt(), implicit val model: Model = 
     nOfCalls += 1
     if (!initialize) initializeObject()
     resetDomains()
+    model.randcVars.foreach(_.next())
     RandObj.satisfySearch(
       new SimpleSelect[Rand](problemVariables.toArray, null, new IndomainRandom[Rand](r + nOfCalls)),
       listener,

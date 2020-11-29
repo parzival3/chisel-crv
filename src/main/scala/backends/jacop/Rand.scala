@@ -8,6 +8,7 @@ import org.jacop.set.constraints.{EinA, XinA}
 class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     extends org.jacop.core.IntVar(obj.model, name, min, max)
     with crv.Rand {
+  override type U = Rand
 
   /**
     * Defines an anonymous finite domain integer variable.
@@ -76,7 +77,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for the addition constraint
     * @return [[Rand]] variable being the result of the addition [[Constraint]].
     */
-  def +(that: backends.jacop.Rand): crv.Rand = {
+  def +(that: backends.jacop.Rand): Rand = {
     val result = new Rand(IntDomain.addInt(this.min(), that.min()), IntDomain.addInt(this.max(), that.max()))
     val c = new XplusYeqZ(this, that, result)
     obj.model.constr += c
@@ -89,7 +90,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second integer parameter for the addition [[Constraint]].
     * @return [[Rand]] variable being the result of the addition [[Constraint]].
     */
-  def +(that: Int): crv.Rand = {
+  def +(that: Int): Rand = {
     val result = new Rand(IntDomain.addInt(this.min(), that), IntDomain.addInt(this.max(), that))
     val c = new XplusCeqZ(this, that, result)
     obj.model.constr += c
@@ -102,7 +103,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for the subtraction [[Constraint]].
     * @return [[Rand]] variable being the result of the subtraction [[Constraint]].
     */
-  def -(that: backends.jacop.Rand): crv.Rand = {
+  def -(that: backends.jacop.Rand): Rand = {
     val result = new Rand(IntDomain.subtractInt(this.min(), that.max()), IntDomain.subtractInt(this.max(), that.min()))
     val c = new XplusYeqZ(result, that, this)
     obj.model.constr += c
@@ -115,7 +116,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second integer parameter for the subtraction [[Constraint]].
     * @return [[Rand]] variable being the result of the subtraction [[Constraint]].
     */
-  def -(that: Int): crv.Rand = {
+  def -(that: Int): Rand = {
     val result = new Rand(IntDomain.subtractInt(this.min(), that), IntDomain.subtractInt(this.max(), that))
     val c = new XplusCeqZ(result, that, this)
     obj.model.constr += c
@@ -128,7 +129,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for equation [[Constraint]].
     * @return the defined [[Constraint]].
     */
-  def #=(that: crv.Rand): crv.Constraint = {
+  def #=(that: Rand): crv.Constraint = {
     that match {
       case v: backends.jacop.Rand =>
         val c = new XeqY(this, v.asInstanceOf[org.jacop.core.IntVar])
@@ -151,38 +152,12 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines the add [[Constraint]] between two [[Rand]] variables
-    *
-    * @param that a second parameter for the addition [[Constraint]]
-    * @return [[Rand]] variable being the result of the addition [[Constraint]].
-    */
-  override def +(that: crv.Rand): crv.Rand = {
-    that match {
-      case v: backends.jacop.Rand => this.+(v)
-      case _ => throw new Exception("Can't mix in two different backends")
-    }
-  }
-
-  /**
-    * Defines subtract [[Constraint]] between two [[Rand]].
-    *
-    * @param that a second parameter for the subtraction [[Constraint]].
-    * @return [[Rand]] variable being the result of the subtraction [[Constraint]].
-    */
-  def -(that: crv.Rand): crv.Rand = {
-    that match {
-      case v: backends.jacop.Rand => this.-(v)
-      case _ => throw new Exception("Can't mix in two different backends")
-    }
-  }
-
-  /**
     * Defines multiplication [[Constraint]] between two [[Rand]].
     *
     * @param that a second parameter for the multiplication [[Constraint]].
     * @return [[Rand]] variable being the result of the multiplication [[Constraint]].
     */
-  def *(that: backends.jacop.Rand): crv.Rand = {
+  def *(that: backends.jacop.Rand): Rand = {
     val bounds = IntDomain.mulBounds(this.min(), this.max(), that.min(), that.max())
     val result = new Rand(bounds.min(), bounds.max())
     val c = new XmulYeqZ(this, that, result)
@@ -191,25 +166,12 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines multiplication [[Constraint]] between two [[Rand]].
-    *
-    * @param that a second parameter for the multiplication [[Constraint]].
-    * @return [[Rand]] variable being the result of the multiplication [[Constraint]].
-    */
-  def *(that: crv.Rand): crv.Rand = {
-    that match {
-      case v: backends.jacop.Rand => this.*(v)
-      case _ => throw new Exception("Can't mix in two different backends")
-    }
-  }
-
-  /**
     * Defines multiplication [[Constraint]] between [[Rand]] and an integer value.
     *
     * @param that a second integer parameter for the multiplication [[Constraint]].
     * @return [[Rand]] variable being the result of the multiplication [[Constraint]].
     */
-  def *(that: Int): crv.Rand = {
+  def *(that: Int): Rand = {
     val bounds = IntDomain.mulBounds(this.min(), this.max(), that, that)
     val result = new Rand(bounds.min(), bounds.max())
     val c = new XmulCeqZ(this, that, result)
@@ -223,7 +185,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for the integer division [[Constraint]].
     * @return [[Rand]] variable being the result of the integer division [[Constraint]].
     */
-  def div(that: backends.jacop.Rand): crv.Rand = {
+  def div(that: backends.jacop.Rand): Rand = {
     val bounds = IntDomain.divBounds(this.min(), this.max(), that.min(), that.max())
     val result = new Rand(bounds.min(), bounds.max())
     val c = new XdivYeqZ(this, that, result)
@@ -232,25 +194,12 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines integer division [[Constraint]] between two [[Rand]].
-    *
-    * @param that a second parameter for the integer division [[Constraint]].
-    * @return [[Rand]] variable being the result of the integer division [[Constraint]].
-    */
-  def div(that: crv.Rand): crv.Rand = {
-    that match {
-      case v: backends.jacop.Rand => this.div(v)
-      case _ => throw new Exception("Can't mix in two different backends")
-    }
-  }
-
-  /**
     * Defines [[Constraint]] for integer reminder from division between two [[Rand]].
     *
     * @param that a second parameter for integer reminder from division [[Constraint]].
     * @return [[Rand]] variable being the result of the integer reminder from division [[Constraint]].
     */
-  def mod(that: backends.jacop.Rand): crv.Rand = {
+  def mod(that: backends.jacop.Rand): Rand = {
     var reminderMin: Int = 0
     var reminderMax: Int = 0
 
@@ -272,41 +221,16 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines [[Constraint]] for integer reminder from division between two [[Rand]].
-    *
-    * @param that a second parameter for integer reminder from division [[Constraint]].
-    * @return [[Rand]] variable being the result of the integer reminder from division [[Constraint]].
-    */
-  def mod(that: crv.Rand): crv.Rand = {
-    that match {
-      case v: backends.jacop.Rand => this.mod(v)
-      case _ => throw new Exception("Can't mix in two different backends")
-    }
-  }
-
-  /**
     * Defines exponentiation [[Constraint]] between two [[Rand]].
     *
     * @param that exponent for the exponentiation [[Constraint]].
     * @return [[Rand]] variable being the result of the exponentiation [[Constraint]].
     */
-  def ^(that: backends.jacop.Rand): crv.Rand = {
+  def ^(that: backends.jacop.Rand): Rand = {
     val result = new Rand()
     val c = new XexpYeqZ(this, that, result)
     obj.model.constr += c
     result
-  }
-
-  /**
-    * Defines exponentiation [[Constraint]] between two [[Rand]].
-    *
-    * @param that exponent for the exponentiation [[Constraint]].
-    * @return [[Rand]] variable being the result of the exponentiation [[Constraint]].
-    */
-  def ^(that: crv.Rand): crv.Rand = {
-    that match {
-      case v: backends.jacop.Rand => this.^(v)
-    }
   }
 
   /**
@@ -334,19 +258,6 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines inequality [[Constraint]] between two [[Rand]].
-    *
-    * @param that a second parameter for inequality [[Constraint]].
-    * @return the defined [[Constraint]].
-    */
-  def #\=(that: crv.Rand): crv.Constraint = {
-    that match {
-      case v: backends.jacop.Rand => this.#\=(v)
-      case _ => throw new Exception("Can't mix in two different backends")
-    }
-  }
-
-  /**
     * Defines inequality [[Constraint]] between [[Rand]] and integer constant.
     *
     * @param that a second parameter for inequality [[Constraint]].
@@ -368,19 +279,6 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     val c = new XltY(this, that)
     obj.model.constr += c
     new Constraint(c)
-  }
-
-  /**
-    * Defines "less than" [[Constraint]] between two [[Rand]].
-    *
-    * @param that a second parameter for "less than" [[Constraint]].
-    * @return the defined [[Constraint]].
-    */
-  def #<(that: crv.Rand): crv.Constraint = {
-    that match {
-      case v: backends.jacop.Rand => this.#<(v)
-      case _ => throw new Exception("Can't mix in two different backends")
-    }
   }
 
   /**
@@ -408,19 +306,6 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines "less than or equal" [[Constraint]] between two [[Rand]].
-    *
-    * @param that a second parameter for "less than or equal" [[Constraint]].
-    * @return the defined [[Constraint]].
-    */
-  def #<=(that: crv.Rand): crv.Constraint = {
-    that match {
-      case v: backends.jacop.Rand => this.#<=(v)
-      case _ => throw new Exception("Can't mix in two different backends")
-    }
-  }
-
-  /**
     * Defines "less than or equal" [[Constraint]] between [[Rand]] and integer constant.
     *
     * @param that a second parameter for "less than or equal" [[Constraint]].
@@ -445,19 +330,6 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
-    * Defines "greater than" [[Constraint]] between two [[Rand]].
-    *
-    * @param that a second parameter for "greater than" [[Constraint]].
-    * @return the defined [[Constraint]].
-    */
-  def #>(that: crv.Rand): crv.Constraint = {
-    that match {
-      case v: backends.jacop.Rand => this.#>(v)
-      case _ => throw new Exception("Can't mix in two different backends")
-    }
-  }
-
-  /**
     * Defines "greater than" [[Constraint]] between [[Rand]] and integer constant.
     *
     * @param that a second parameter for "greater than" [[Constraint]].
@@ -479,19 +351,6 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     val c = new XgteqY(this, that)
     obj.model.constr += c
     new Constraint(c)
-  }
-
-  /**
-    * Defines "greater than or equal" [[Constraint]] between two [[Rand]].
-    *
-    * @param that a second parameter for "greater than or equal" [[Constraint]].
-    * @return the defined [[Constraint]].
-    */
-  def #>=(that: crv.Rand): crv.Constraint = {
-    that match {
-      case v: backends.jacop.Rand => this.#>=(v)
-      case _ => throw new Exception("Can't mix in two different backends")
-    }
   }
 
   /**

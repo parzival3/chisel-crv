@@ -2,20 +2,23 @@ package backends.jacop
 
 import java.util
 
+import org.jacop.constraints.PrimitiveConstraint
 import org.jacop.core.{Store, Var}
 
 class Constraint(private val constraint: org.jacop.constraints.PrimitiveConstraint)(implicit randObj: RandObj)
     extends crv.Constraint {
-
+  override type U = PrimitiveConstraint
   override def disable(): Unit = {
-    randObj.model.constr -= constraint
+    randObj._model.constr -= constraint
     constraint.removeConstraint()
   }
 
   override def enable(): Unit = {
-    randObj.model.constr += constraint
-    randObj.model.addChanged(constraint)
+    randObj._model.constr += constraint
+    randObj._model.addChanged(constraint)
   }
+
+  override def getConstraint: PrimitiveConstraint = constraint
 
   /**
     * It specifies the events which must occur for notConsistency()

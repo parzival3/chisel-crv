@@ -6,7 +6,7 @@ import org.jacop.scala.{IntSet, SetVar}
 import org.jacop.set.constraints.{EinA, XinA}
 
 class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
-    extends org.jacop.core.IntVar(obj.model, name, min, max)
+    extends org.jacop.core.IntVar(obj._model, name, min, max)
     with crv.Rand {
   override type U = Rand
 
@@ -18,8 +18,8 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param max maximal value of variable's domain.
     */
   def this(min: Int, max: Int)(implicit obj: RandObj) = {
-    this("_$" + obj.model.n, min, max)(obj)
-    obj.model.n += 1
+    this("_$" + obj._model.n, min, max)(obj)
+    obj._model.n += 1
   }
 
   /**
@@ -31,7 +31,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     */
   def this(name: String)(implicit obj: RandObj) = {
     this(name, org.jacop.core.IntDomain.MinInt, org.jacop.core.IntDomain.MaxInt)(obj)
-    obj.model.n += 1
+    obj._model.n += 1
   }
 
   /**
@@ -42,7 +42,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     */
   def this()(implicit obj: RandObj) = {
     this(org.jacop.core.IntDomain.MinInt, org.jacop.core.IntDomain.MaxInt)(obj)
-    obj.model.n += 1
+    obj._model.n += 1
   }
 
   /**
@@ -54,7 +54,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   def this(dom: IntSet)(implicit obj: RandObj) = {
     this()(obj)
     this.dom.intersectAdapt(dom)
-    obj.model.n += 1
+    obj._model.n += 1
   }
 
   /**
@@ -68,7 +68,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   def this(name: String, dom: IntSet)(implicit obj: RandObj) = {
     this(name)(obj)
     this.dom.intersectAdapt(dom)
-    obj.model.n += 1
+    obj._model.n += 1
   }
 
   /**
@@ -80,7 +80,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   def +(that: backends.jacop.Rand): Rand = {
     val result = new Rand(IntDomain.addInt(this.min(), that.min()), IntDomain.addInt(this.max(), that.max()))
     val c = new XplusYeqZ(this, that, result)
-    obj.model.constr += c
+    obj._model.constr += c
     result
   }
 
@@ -93,7 +93,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   def +(that: Int): Rand = {
     val result = new Rand(IntDomain.addInt(this.min(), that), IntDomain.addInt(this.max(), that))
     val c = new XplusCeqZ(this, that, result)
-    obj.model.constr += c
+    obj._model.constr += c
     result
   }
 
@@ -106,7 +106,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   def -(that: backends.jacop.Rand): Rand = {
     val result = new Rand(IntDomain.subtractInt(this.min(), that.max()), IntDomain.subtractInt(this.max(), that.min()))
     val c = new XplusYeqZ(result, that, this)
-    obj.model.constr += c
+    obj._model.constr += c
     result
   }
 
@@ -119,7 +119,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   def -(that: Int): Rand = {
     val result = new Rand(IntDomain.subtractInt(this.min(), that), IntDomain.subtractInt(this.max(), that))
     val c = new XplusCeqZ(result, that, this)
-    obj.model.constr += c
+    obj._model.constr += c
     result
   }
 
@@ -133,7 +133,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     that match {
       case v: backends.jacop.Rand =>
         val c = new XeqY(this, v.asInstanceOf[org.jacop.core.IntVar])
-        obj.model.constr += c
+        obj._model.constr += c
         new Constraint(c)
       case _ => throw new Exception("Can't mix in two different backends")
     }
@@ -147,7 +147,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     */
   def #=(that: Int): crv.Constraint = {
     val c = new XeqC(this, that)
-    obj.model.constr += c
+    obj._model.constr += c
     new Constraint(c)
   }
 
@@ -161,7 +161,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     val bounds = IntDomain.mulBounds(this.min(), this.max(), that.min(), that.max())
     val result = new Rand(bounds.min(), bounds.max())
     val c = new XmulYeqZ(this, that, result)
-    obj.model.constr += c
+    obj._model.constr += c
     result
   }
 
@@ -175,7 +175,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     val bounds = IntDomain.mulBounds(this.min(), this.max(), that, that)
     val result = new Rand(bounds.min(), bounds.max())
     val c = new XmulCeqZ(this, that, result)
-    obj.model.constr += c
+    obj._model.constr += c
     result
   }
 
@@ -189,7 +189,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     val bounds = IntDomain.divBounds(this.min(), this.max(), that.min(), that.max())
     val result = new Rand(bounds.min(), bounds.max())
     val c = new XdivYeqZ(this, that, result)
-    obj.model.constr += c
+    obj._model.constr += c
     result
   }
 
@@ -216,7 +216,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
 
     val result = new Rand(reminderMin, reminderMax)
     val c = new XmodYeqZ(this, that, result)
-    obj.model.constr += c
+    obj._model.constr += c
     result
   }
 
@@ -229,7 +229,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   def ^(that: backends.jacop.Rand): Rand = {
     val result = new Rand()
     val c = new XexpYeqZ(this, that, result)
-    obj.model.constr += c
+    obj._model.constr += c
     result
   }
 
@@ -241,7 +241,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   def unary_- : Rand = {
     val result = new Rand(-this.max(), -this.min())
     val c = new XplusYeqC(this, result, 0)
-    obj.model.constr += c
+    obj._model.constr += c
     result
   }
 
@@ -253,7 +253,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     */
   def #\=(that: backends.jacop.Rand): crv.Constraint = {
     val c = new XneqY(this, that)
-    obj.model.constr += c
+    obj._model.constr += c
     new Constraint(c)
   }
 
@@ -265,7 +265,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     */
   def #\=(that: Int): crv.Constraint = {
     val c = new XneqC(this, that)
-    obj.model.constr += c
+    obj._model.constr += c
     new Constraint(c)
   }
 
@@ -277,7 +277,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     */
   def #<(that: backends.jacop.Rand): crv.Constraint = {
     val c = new XltY(this, that)
-    obj.model.constr += c
+    obj._model.constr += c
     new Constraint(c)
   }
 
@@ -289,7 +289,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     */
   def #<(that: Int): crv.Constraint = {
     val c = new XltC(this, that)
-    obj.model.constr += c
+    obj._model.constr += c
     new Constraint(c)
   }
 
@@ -301,7 +301,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     */
   def #<=(that: backends.jacop.Rand): crv.Constraint = {
     val c = new XlteqY(this, that)
-    obj.model.constr += c
+    obj._model.constr += c
     new Constraint(c)
   }
 
@@ -313,7 +313,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     */
   def #<=(that: Int): crv.Constraint = {
     val c = new XlteqC(this, that)
-    obj.model.constr += c
+    obj._model.constr += c
     new Constraint(c)
   }
 
@@ -325,7 +325,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     */
   def #>(that: backends.jacop.Rand): crv.Constraint = {
     val c = new XgtY(this, that)
-    obj.model.constr += c
+    obj._model.constr += c
     new Constraint(c)
   }
 
@@ -337,7 +337,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     */
   def #>(that: Int): crv.Constraint = {
     val c = new XgtC(this, that)
-    obj.model.constr += c
+    obj._model.constr += c
     new Constraint(c)
   }
 
@@ -349,7 +349,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     */
   def #>=(that: backends.jacop.Rand): crv.Constraint = {
     val c = new XgteqY(this, that)
-    obj.model.constr += c
+    obj._model.constr += c
     new Constraint(c)
   }
 
@@ -361,7 +361,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     */
   def #>=(that: Int): crv.Constraint = {
     val c = new XgteqC(this, that)
-    obj.model.constr += c
+    obj._model.constr += c
     new Constraint(c)
   }
 
@@ -374,11 +374,11 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   def in(that: SetVar): crv.Constraint = {
     if (min == max) {
       val c = new EinA(min, that)
-      obj.model.constr += c
+      obj._model.constr += c
       new Constraint(c)
     } else {
       val c = new XinA(this, that)
-      obj.model.constr += c
+      obj._model.constr += c
       new Constraint(c)
     }
   }

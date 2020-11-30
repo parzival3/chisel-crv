@@ -6,7 +6,7 @@ import org.scalatest.FlatSpec
 class TestRandJacop extends FlatSpec with VerificationContext {
   behavior.of("Rand variable in Jacop")
   it should "be able to declare a random variable and and a constraint" in {
-    class Packet extends RandObj {
+    class Packet extends RandObj(new Model) {
       val min = 1
       val max = 100
       var size = new Rand("size", min, max)
@@ -36,7 +36,7 @@ class TestRandJacop extends FlatSpec with VerificationContext {
   }
 
   it should "be able to subtract two Rand var" in {
-    class Packet extends RandObj {
+    class Packet extends RandObj(new Model) {
       val min = 1
       val max = 100
       val size = new Rand("size", min, max)
@@ -50,7 +50,7 @@ class TestRandJacop extends FlatSpec with VerificationContext {
   }
 
   it should "be able to add two Rand var" in {
-    class Packet extends RandObj {
+    class Packet extends RandObj(new Model) {
       val min = 1
       val max = 100
       val size = new Rand("size", min, max)
@@ -66,7 +66,7 @@ class TestRandJacop extends FlatSpec with VerificationContext {
   }
 
   it should "be able to divide two Rand var" in {
-    class Packet extends RandObj {
+    class Packet extends RandObj(new Model) {
       val min = 1
       val max = 100
       val size = new Rand("size", min, max)
@@ -82,7 +82,7 @@ class TestRandJacop extends FlatSpec with VerificationContext {
   }
 
   it should "be able to multiply two Rand var" in {
-    class Packet extends RandObj {
+    class Packet extends RandObj(new Model) {
       val min = 1
       val max = 100
       val size = new Rand("size", min, max)
@@ -98,7 +98,7 @@ class TestRandJacop extends FlatSpec with VerificationContext {
   }
 
   it should "be able to constraint the reminder of Rand var" in {
-    class Packet extends RandObj {
+    class Packet extends RandObj(new Model) {
       val min = 1
       val max = 100
       val size = new Rand("size", min, max)
@@ -114,7 +114,7 @@ class TestRandJacop extends FlatSpec with VerificationContext {
   }
 
   it should "be able to constraint the exponential of Rand var" in {
-    class Packet extends RandObj {
+    class Packet extends RandObj(new Model) {
       val min = 1
       val max = 100
       val size = new Rand("size", 2, 3)
@@ -130,7 +130,7 @@ class TestRandJacop extends FlatSpec with VerificationContext {
   }
 
   it should "be able to constraint less or equal then  Rand var" in {
-    class Packet extends RandObj {
+    class Packet extends RandObj(new Model) {
       val min = 1
       val max = 100
       val len = new Rand("len", min, max)
@@ -146,7 +146,7 @@ class TestRandJacop extends FlatSpec with VerificationContext {
   }
 
   it should "be able to constraint less then  Rand var" in {
-    class Packet extends RandObj {
+    class Packet extends RandObj(new Model) {
       val min = 1
       val max = 100
       val len = new Rand("len", min, max)
@@ -162,7 +162,7 @@ class TestRandJacop extends FlatSpec with VerificationContext {
   }
 
   it should "be able to constraint gather or equal than of Rand var" in {
-    class Packet extends RandObj(3) {
+    class Packet extends RandObj(new Model) {
       val min = 1
       val max = 10
       val len = new Rand("len", min, max)
@@ -177,7 +177,7 @@ class TestRandJacop extends FlatSpec with VerificationContext {
   }
 
   it should "be able to constraint gather than of Rand var" in {
-    class Packet extends RandObj {
+    class Packet extends RandObj(new Model) {
       val min = 1
       val max = 100
       val len = new Rand("len", min, max)
@@ -193,7 +193,7 @@ class TestRandJacop extends FlatSpec with VerificationContext {
 
   it should "be able to add Constraint Groups" in {
 
-    class Packet extends RandObj {
+    class Packet extends RandObj(new Model) {
       val min = 1
       val max = 100
       val len = new Rand("len", min, max)
@@ -219,7 +219,7 @@ class TestRandJacop extends FlatSpec with VerificationContext {
 
   it should "be possible to add Randc variables" in {
 
-    class Packet extends RandObj {
+    class Packet extends RandObj(new Model) {
       val min = 1
       val max = 100
       val len = new Rand("len", min, max)
@@ -240,5 +240,72 @@ class TestRandJacop extends FlatSpec with VerificationContext {
     assert(myPacket.randomize)
     val x: Int = if (z == myPacket.max) myPacket.min else z + 1
     assert(myPacket.randc.value() == x)
+  }
+
+  it should "be able to declare nested random classes" in {
+    class Packet1(model: Model) extends RandObj(model) {
+      override def toString: String = "Packet1"
+      val len:               Rand = new Rand(10, 100)
+    }
+
+    class Packet2(model: Model) extends RandObj(model) {
+      override def toString: String = "Packet2"
+      val nestedPacket = new Packet1(model)
+      val size = new Rand(10, 100)
+      size #= nestedPacket.len
+    }
+
+    val myPaket = new Packet2(new Model)
+    assert(myPaket._model.id == myPaket.nestedPacket._model.id)
+    assert(myPaket.randomize)
+    assert(myPaket.size.value() == myPaket.nestedPacket.len.value())
+  }
+
+  it should "be able to declare conditional constraint" in {
+    class Packet(model: Model) extends RandObj(model) {
+      override def toString: String = "Packet1"
+      val len:               Rand = new Rand(1, 3)
+      val c:                 Rand = new Rand(1, 100)
+
+      val constraint1: Constraint = ifThen(len #= 1) {
+        c #= 50
+      }
+
+      val constraint2: Constraint = ifThen(len #= 2) {
+        c #= 40
+      }
+
+      val constraint3: Constraint = ifThen(len #= 3) {
+        c #= 70
+      }
+
+    }
+    val myPacket = new Packet(new Model)
+    assert(myPacket.randomize)
+    if (myPacket.len.value() == 1) {
+      assert(myPacket.c.value() == 50)
+    } else if (myPacket.len.value() == 2) {
+      assert(myPacket.c.value() == 40)
+    } else {
+      assert(myPacket.c.value() == 70)
+    }
+  }
+
+  it should "be able to declare ifThenElse constraint" in {
+    class Packet(model: Model) extends RandObj(model) {
+      override def toString: String = "Packet1"
+      val len:               Rand = new Rand(1, 3)
+      val c:                 Rand = new Rand(1, 100)
+      val constraint1:       crv.Constraint = ifThenElse(len #= 1)(c #= 50)(c #= 100)
+    }
+
+    val myPacket = new Packet(new Model)
+    assert(myPacket.randomize)
+
+    if (myPacket.len.value() == 1) {
+      assert(myPacket.c.value() == 50)
+    } else {
+      assert(myPacket.c.value() == 100)
+    }
   }
 }

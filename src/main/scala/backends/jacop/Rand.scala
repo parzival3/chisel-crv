@@ -49,7 +49,7 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * Defines a finite domain integer variable.
     *
     * @constructor Create a new finite domain integer variable with the domain defined by IntSet.
-    * @param dom variable's domain defined as a set of integers [[org.jacop.scala.IntSet]].
+    * @param dom variable's domain defined as a set of integers IntSet.
     */
   def this(dom: IntSet)(implicit obj: RandObj) = {
     this()(obj)
@@ -63,12 +63,21 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @constructor Create a new finite domain integer variable with the domain
     *              defined by IntSet.
     * @param name variable's identifier.
-    * @param dom  variable's domain defined as a set of integers [[org.jacop.scala.IntSet]].
+    * @param dom  variable's domain defined as a set of IntSet.
     */
   def this(name: String, dom: IntSet)(implicit obj: RandObj) = {
     this(name)(obj)
     this.dom.intersectAdapt(dom)
     obj._model.n += 1
+  }
+
+  /**
+    * Assign a specific value to the current variable
+    * @param v BigI
+    */
+  def setVar(v: BigInt): Unit = {
+    require(v < Int.MaxValue)
+    setDomain(v.toInt, v.toInt)
   }
 
   /**
@@ -90,9 +99,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second integer parameter for the addition [[Constraint]].
     * @return [[Rand]] variable being the result of the addition [[Constraint]].
     */
-  def +(that: Int): Rand = {
-    val result = new Rand(IntDomain.addInt(this.min(), that), IntDomain.addInt(this.max(), that))
-    val c = new XplusCeqZ(this, that, result)
+  def +(that: BigInt): Rand = {
+    require(that <= Int.MaxValue)
+    val result = new Rand(IntDomain.addInt(this.min(), that.toInt), IntDomain.addInt(this.max(), that.toInt))
+    val c = new XplusCeqZ(this, that.toInt, result)
     obj._model.constr += c
     result
   }
@@ -116,9 +126,10 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second integer parameter for the subtraction [[Constraint]].
     * @return [[Rand]] variable being the result of the subtraction [[Constraint]].
     */
-  def -(that: Int): Rand = {
-    val result = new Rand(IntDomain.subtractInt(this.min(), that), IntDomain.subtractInt(this.max(), that))
-    val c = new XplusCeqZ(result, that, this)
+  def -(that: BigInt): Rand = {
+    require(that <= Int.MaxValue)
+    val result = new Rand(IntDomain.subtractInt(this.min(), that.toInt), IntDomain.subtractInt(this.max(), that.toInt))
+    val c = new XplusCeqZ(result, that.toInt, this)
     obj._model.constr += c
     result
   }
@@ -145,8 +156,9 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for equation [[Constraint]].
     * @return the defined [[Constraint]].
     */
-  def #=(that: Int): crv.Constraint = {
-    val c = new XeqC(this, that)
+  def #=(that: BigInt): crv.Constraint = {
+    require(that <= Int.MaxValue)
+    val c = new XeqC(this, that.toInt)
     obj._model.constr += c
     new Constraint(c)
   }
@@ -171,10 +183,11 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second integer parameter for the multiplication [[Constraint]].
     * @return [[Rand]] variable being the result of the multiplication [[Constraint]].
     */
-  def *(that: Int): Rand = {
-    val bounds = IntDomain.mulBounds(this.min(), this.max(), that, that)
+  def *(that: BigInt): Rand = {
+    require(that <= Int.MaxValue)
+    val bounds = IntDomain.mulBounds(this.min(), this.max(), that.toInt, that.toInt)
     val result = new Rand(bounds.min(), bounds.max())
-    val c = new XmulCeqZ(this, that, result)
+    val c = new XmulCeqZ(this, that.toInt, result)
     obj._model.constr += c
     result
   }
@@ -189,6 +202,22 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     val bounds = IntDomain.divBounds(this.min(), this.max(), that.min(), that.max())
     val result = new Rand(bounds.min(), bounds.max())
     val c = new XdivYeqZ(this, that, result)
+    obj._model.constr += c
+    result
+  }
+
+  /**
+    * Defines integer division [[Constraint]] between [[Rand]] and an integer value.
+    *
+    * @param that a second parameter for the integer division [[Constraint]].
+    * @return [[Rand]] variable being the result of the integer division [[Constraint]].
+    */
+  def div(that: BigInt): Rand = {
+    require(that < Int.MaxValue)
+    val tmp = new Rand(that.toInt, that.toInt)
+    val bounds = IntDomain.divBounds(this.min(), this.max(), that.toInt, that.toInt)
+    val result = new Rand(bounds.min(), bounds.max())
+    val c = new XdivYeqZ(this, tmp, result)
     obj._model.constr += c
     result
   }
@@ -221,6 +250,35 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   }
 
   /**
+    * Defines [[Constraint]] for integer reminder from division [[Rand]] and an integer value.
+    *
+    * @param that a second parameter for integer reminder from division [[Constraint]].
+    * @return [[Rand]] variable being the result of the integer reminder from division [[Constraint]].
+    */
+  def mod(that: BigInt): Rand = {
+    require(that <= Int.MaxValue)
+    var reminderMin: Int = 0
+    var reminderMax: Int = 0
+    val tmp = new Rand(that.toInt, that.toInt)
+
+    if (this.min() >= 0) {
+      reminderMin = 0
+      reminderMax = Math.max(Math.abs(tmp.min()), Math.abs(tmp.max())) - 1
+    } else if (this.max() < 0) {
+      reminderMax = 0
+      reminderMin = -Math.max(Math.abs(tmp.min()), Math.abs(tmp.max())) + 1
+    } else {
+      reminderMin = Math.min(Math.min(tmp.min(), -tmp.min()), Math.min(tmp.max(), -tmp.max())) + 1
+      reminderMax = Math.max(Math.max(tmp.min(), -tmp.min()), Math.max(tmp.max(), -tmp.max())) - 1
+    }
+
+    val result = new Rand(reminderMin, reminderMax)
+    val c = new XmodYeqZ(this, tmp, result)
+    obj._model.constr += c
+    result
+  }
+
+  /**
     * Defines exponentiation [[Constraint]] between two [[Rand]].
     *
     * @param that exponent for the exponentiation [[Constraint]].
@@ -229,6 +287,21 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
   def ^(that: backends.jacop.Rand): Rand = {
     val result = new Rand()
     val c = new XexpYeqZ(this, that, result)
+    obj._model.constr += c
+    result
+  }
+
+  /**
+    * Defines exponentiation [[Constraint]] between [[Rand]] and an integer value.
+    *
+    * @param that exponent for the exponentiation [[Constraint]].
+    * @return [[Rand]] variable being the result of the exponentiation [[Constraint]].
+    */
+  def ^(that: BigInt): Rand = {
+    require(that <= Int.MaxValue)
+    val tmp = new Rand(that.toInt, that.toInt)
+    val result = new Rand()
+    val c = new XexpYeqZ(this, tmp, result)
     obj._model.constr += c
     result
   }
@@ -263,8 +336,9 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for inequality [[Constraint]].
     * @return the defined [[Constraint]].
     */
-  def #\=(that: Int): crv.Constraint = {
-    val c = new XneqC(this, that)
+  def #\=(that: BigInt): crv.Constraint = {
+    require(that <= Int.MaxValue)
+    val c = new XneqC(this, that.toInt)
     obj._model.constr += c
     new Constraint(c)
   }
@@ -287,8 +361,9 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for "less than" [[Constraint]].
     * @return the equation [[Constraint]].
     */
-  def #<(that: Int): crv.Constraint = {
-    val c = new XltC(this, that)
+  def #<(that: BigInt): crv.Constraint = {
+    require(that <= Int.MaxValue)
+    val c = new XltC(this, that.toInt)
     obj._model.constr += c
     new Constraint(c)
   }
@@ -311,8 +386,9 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for "less than or equal" [[Constraint]].
     * @return the equation [[Constraint]].
     */
-  def #<=(that: Int): crv.Constraint = {
-    val c = new XlteqC(this, that)
+  def #<=(that: BigInt): crv.Constraint = {
+    require(that <= Int.MaxValue)
+    val c = new XlteqC(this, that.toInt)
     obj._model.constr += c
     new Constraint(c)
   }
@@ -335,8 +411,9 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for "greater than" [[Constraint]].
     * @return the equation [[Constraint]].
     */
-  def #>(that: Int): crv.Constraint = {
-    val c = new XgtC(this, that)
+  def #>(that: BigInt): crv.Constraint = {
+    require(that <= Int.MaxValue)
+    val c = new XgtC(this, that.toInt)
     obj._model.constr += c
     new Constraint(c)
   }
@@ -359,8 +436,9 @@ class Rand(name: String, min: Int, max: Int)(implicit val obj: RandObj)
     * @param that a second parameter for "greater than or equal" [[Constraint]].
     * @return the equation [[Constraint]].
     */
-  def #>=(that: Int): crv.Constraint = {
-    val c = new XgteqC(this, that)
+  def #>=(that: BigInt): crv.Constraint = {
+    require(that <= Int.MaxValue)
+    val c = new XgteqC(this, that.toInt)
     obj._model.constr += c
     new Constraint(c)
   }

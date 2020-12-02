@@ -236,9 +236,9 @@ class TestRandJacop extends FlatSpec with VerificationContext {
 
     val myPacket = new Packet
     assert(myPacket.randomize)
-    val z: Int = myPacket.randc
+    val z: BigInt = myPacket.randc.value()
     assert(myPacket.randomize)
-    val x: Int = if (z == myPacket.max) myPacket.min else z + 1
+    val x: BigInt = if (z == myPacket.max) myPacket.min else z + 1
     assert(myPacket.randc.value() == x)
   }
 
@@ -307,5 +307,15 @@ class TestRandJacop extends FlatSpec with VerificationContext {
     } else {
       assert(myPacket.c.value() == 100)
     }
+  }
+
+  it should "be possible to assign a value to a random variable" in {
+    class Packet(model: Model) extends RandObj(model) {
+      override def toString: String = "Packet1"
+      val len:               Rand = new Rand(1, 3)
+    }
+
+    val myPacket = new Packet(new Model)
+    myPacket.len.setVar(10)
   }
 }

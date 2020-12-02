@@ -1,6 +1,8 @@
-ThisBuild / name := "chisel-crv"
+name := "chisel-crv"
 
-ThisBuild / version := "0.1"
+organization := "parzival3"
+
+version := "0.1.3"
 
 scalaVersion := "2.12.10"
 

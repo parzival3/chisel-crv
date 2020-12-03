@@ -1,6 +1,5 @@
 package crv
 
-// TODO: we can avoid specifying the name by using reflection
 trait Rand {
   type U <: Rand
 
@@ -30,4 +29,7 @@ trait Rand {
   def #>(that: U): Constraint
 
   def #>=(that: U): Constraint
+
+  def setVar(that: BigInt): Unit
+
 }

@@ -1,6 +1,5 @@
 package backends.jacop
 
-import crv.ConstraintGroup
 import org.scalatest.FlatSpec
 
 class TestRandJacop extends FlatSpec with VerificationContext {

@@ -7,7 +7,7 @@ trait VerificationContext extends crv.VerificationContext {
     *
     * @param i integer to be converted.
     */
-  implicit def BigIntToRand(i: BigInt)(implicit obj: RandObj): Rand = {
+  implicit def BigIntToRand(i: BigInt)(implicit model: Model): Rand = {
     require(i < Int.MaxValue)
     new Rand(i.toInt, i.toInt)
   }

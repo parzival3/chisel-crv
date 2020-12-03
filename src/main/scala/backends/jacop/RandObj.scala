@@ -46,10 +46,9 @@ object RandObj {
   }
 }
 
-class RandObj(val _model: Model, r: Int = new util.Random().nextInt()) extends crv.RandObj {
+class RandObj(val _model: Model) extends crv.RandObj {
 
   // We need a reference to the Parent RandomObj in order to enable or disable a constraint
-  implicit val current:      RandObj = this
   implicit val currentModel: Model = _model
   private var nOfCalls = 0
   private val listener = new SimpleSolutionListener[backends.jacop.Rand]
@@ -93,7 +92,7 @@ class RandObj(val _model: Model, r: Int = new util.Random().nextInt()) extends c
     resetDomains()
     _model.randcVars.foreach(_.next())
     RandObj.satisfySearch(
-      new SimpleSelect[Rand](problemVariables.toArray, null, new IndomainRandom[Rand](r + nOfCalls)),
+      new SimpleSelect[Rand](problemVariables.toArray, null, new IndomainRandom[Rand](_model.seed + nOfCalls)),
       listener,
       _model
     )

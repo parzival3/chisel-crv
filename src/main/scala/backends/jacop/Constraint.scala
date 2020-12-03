@@ -5,17 +5,17 @@ import java.util
 import org.jacop.constraints.PrimitiveConstraint
 import org.jacop.core.{Store, Var}
 
-class Constraint(private val constraint: org.jacop.constraints.PrimitiveConstraint)(implicit randObj: RandObj)
+class Constraint(private val constraint: org.jacop.constraints.PrimitiveConstraint)(implicit model: Model)
     extends crv.Constraint {
   override type U = PrimitiveConstraint
   override def disable(): Unit = {
-    randObj._model.constr -= constraint
+    model.constr -= constraint
     constraint.removeConstraint()
   }
 
   override def enable(): Unit = {
-    randObj._model.constr += constraint
-    randObj._model.addChanged(constraint)
+    model.constr += constraint
+    model.addChanged(constraint)
   }
 
   override def getConstraint: PrimitiveConstraint = constraint

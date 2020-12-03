@@ -1,5 +1,5 @@
 
-![Github actions](https://github.com/parzival3/csp/workflows/Scala%20CI/badge.svg) [![codecov](https://codecov.io/gh/parzival3/chisel-crv/branch/develop/graph/badge.svg?token=1UWX7OCVTD)](https://codecov.io/gh/parzival3/chisel-crv)
+![Github actions](https://github.com/parzival3/chisel-crv/workflows/Scala%20CI/badge.svg) [![codecov](https://codecov.io/gh/parzival3/chisel-crv/branch/develop/graph/badge.svg?token=1UWX7OCVTD)](https://codecov.io/gh/parzival3/chisel-crv)
 
 # Chisel CRV
 Chisel CRV is a project that aims to mimic the functionality of SystemVerilog constraint programming and integrates them into [chisel-tester2](https://github.com/ucb-bar/chisel-testers2).
@@ -22,19 +22,21 @@ constraint legal {
 }
 ```
 
-### Chisel CRV
+### Chisel CRV / jacop backend
 ```scala
-class Frame extends sv.Random(33) {
-  var pkType: RandInt = rand(pkType, pktType.domainValues())
-  var len: RandInt = rand(len, 0 to 10 toList)
-  var noRepeat: RandCInt = randc(noRepeat, 0 to 1 toList)
-  var payload: RandInt = rand(payload, 0 to 7 toList)
+import backends.jacop._
 
-  val myBlock: ConstraintBlock = constraintBlock (
-    unary ( len => len >= 2),
-    unary (len =>  len <= 5),
-    binary ((len, payload) => len == payload)
-  )
+class Frame extends RandObj(new Model) {
+  val pkType: Rand = new Rand(0, 3)
+  val len: Rand = new Rand(0, 10)
+  val noRepeat: Randc = new Randc(0, 1)
+  val payload: RandArr = new RandArr(0, 7, _model)
+
+  val legal: ConstraintGroup = new ConstraintGroup {
+    len #>= 2
+    len #<= 5
+    payload.size #= len
+  }
 }
 ```
 
@@ -44,65 +46,80 @@ Is a combination of  **BacktrackSearching** and **Constraint Propagation**.
 The pseudocode for the algorithm used can be found [here](http://aima.cs.berkeley.edu/algorithms.pdf).
 The CSP solver and the relative components are stored in the `csp` package.
 
-## Random Class
-The random class is the base class that each Random object should extend in order to implement
-constrained programming.
-### Declaration
-Create a class that inherits from the base class `sv.Random`
+## Random Objects
+Random objects can be created by extending the RandObj trait. This class accepts one parameter which is a Model. A model
+correspond to a database in which all the random variable and constraint declared inside the RandObj are stored.
 ```scala
-class Frame extends sv.Random
+import backends.jacop._
+class Frame extends RandObj(new Model)
 ```
-The class can also be seeded like
+A model can be initialized with a seed `new Model(42)`, which allows the user to specify reproducible tests.
+
+### Random Fields
+A random field can be added to a `RandObj` by declaring a Rand variable.
 ```scala
-class Frame extends sv.Random(33)
+  val len: Rand = new Rand(0, 10)
 ```
 
-You can add random field by declaring a `var` field as type `RandInt` and assigin it a domain
-with the `rand` macro. A domain is a list of values. For now only integer values are supported.
+Continuous random variable can be added by declaring a `Randc` field inside a `RandObj`
 ```scala
-  var len: RandInt = rand(len, 0 to 10 toList)
+  val noRepeat: Randc = Randc(0, 1)
 ```
 
-You can also add a continuous Random Integer by adding a `var` field to your class and declaring it
-`RandIntC`
+### Constraints
+Each variable can have one or multiple constraint. Constraint relations are usually preceded by the `#` symbol.
 ```scala
-  var noRepeat: RandCInt = randc(noRepeat, 0 to 1 toList)
+len #>= 2
 ```
-Finally you can constraint the newly added fields by creating a constraint block 
+In the previous block of code we are specifying that the variable `len` can only take values that are grater then 2. 
+Each constraint can be assigned to a variable and  enabled or disabled at any time during the test
 ```scala
-  val myBlock: ConstraintBlock = constraintBlock (
-    unary ( len => len >= 2),
-    unary (len =>  len <= 5),
-  )
+val lenConstraint = len #> 2
+[....]
+lenConstraint.disable()
+[....]
+lenConstraint.enable()
+```
+
+Constraint can also be grouped together in a `ConstraintGrup` and the group itself can be enabled or disabled.
+
+```scala
+val legal: ConstraintGroup = new ConstraintGroup {
+  len #>= 2
+  len #<= 5
+  payload.size #= len
+}
+[...]
+legal.disable()
+[...]
+legal.enable()
+```
+
+By default, constraints and constraints groups are enabled when they are declared. 
+
+
+The list of operator used to construct constraint is the following:
+`#<`, `#<=`, `#>`, `#>=`,`#=`, `div`, `*`, `mod`, `+`, `-`, `#\=`, `^`, `in`, `inside`
+
+It is also possible to declare conditional constraints with constructors like `IfThen` and `IfThenElse`.
+```scala
+val constraint1: crv.Constraint = ifThenElse(len #= 1)(payload.size #= 3)(payload.size #= 10)
 ```
 
 ### Usage
-
-To randomize the newly create random object, just call the `randomize` method
+As in SystemVerilog, each random class exposes a method called `randomize()` this method automatically solves the
+constraint specified in the class and assign to each random filed a random value. The method returns `true`  only if the
+CSP found a set of values that satisfy the current constraints.
 ```scala
-val frame = new Frame
-while (frame.randomize) {
-  println(frame.debug())
-  assert(frame.len >= 2)
-  assert(frame.len <= 5)
-}
+val myPacket = new Frame(new Model)
+assert(myPacket.randomize)
 ```
-output
-```sbtshell
-pkType = 1; len = 5; noRepeat = 0; payload = 5;
-pkType = 0; len = 5; noRepeat = 1; payload = 5;
-pkType = 11; len = 5; noRepeat = 0; payload = 5;
-pkType = 1; len = 3; noRepeat = 1; payload = 3;
-[...]
-```
-## Online Resources
 
+## Online Resources
+- [jacop](https://github.com/radsz/jacop)
+- [choco-solver](https://github.com/chocoteam/choco-solver)
+- [optaplanner](https://github.com/kiegroup/optaplanner) 
 - [Constraint Solvingwithout Surprises in Object-ConstraintProgramming Languages](http://www.vpri.org/pdf/tr2015002_oopsla15_babelsberg.pdf)
 - [Exact Cover](https://garethrees.org/2015/11/17/exact-cover/) Series of 3 articles about constraint programming
 - [CLP(FD) Prolog library about constraints](http://www.pathwayslms.com/swipltuts/clpfd/clpfd.html) 
-
-## Todo list
-- [ ] Refactoring the csp package
-- [ ] Add random arrays
-- [ ] Add soft constraint
 

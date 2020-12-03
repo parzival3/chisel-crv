@@ -40,12 +40,6 @@ class Frame extends RandObj(new Model) {
 }
 ```
 
-## CSP Solver
-Based on the ideas of the book [Artificial Intelligence A Modern Approach](https://www.pearson.com/us/higher-education/program/Russell-Artificial-Intelligence-A-Modern-Approach-4th-Edition/PGM1263338.html),
-Is a combination of  **BacktrackSearching** and **Constraint Propagation**.
-The pseudocode for the algorithm used can be found [here](http://aima.cs.berkeley.edu/algorithms.pdf).
-The CSP solver and the relative components are stored in the `csp` package.
-
 ## Random Objects
 Random objects can be created by extending the RandObj trait. This class accepts one parameter which is a Model. A model
 correspond to a database in which all the random variable and constraint declared inside the RandObj are stored.

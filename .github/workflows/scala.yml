@@ -17,21 +17,13 @@ jobs:
           java-version: 1.8
 
       - name: Check formatting
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
         run: sbt scalafmtCheckAll
 
       - name: Run tests
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
         run:  sbt clean coverage test
 
       - name: Create Coverage Report
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
         run: sbt coverageAggregate
 
-      - name: CodeCov
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-        run: bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_SECRET }}
+      # - name: CodeCov
+      #  run: bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_SECRET }}

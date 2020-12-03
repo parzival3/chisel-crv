@@ -1,9 +1,10 @@
 
 ![Github actions](https://github.com/parzival3/chisel-crv/workflows/Scala%20CI/badge.svg) [![codecov](https://codecov.io/gh/parzival3/chisel-crv/branch/develop/graph/badge.svg?token=1UWX7OCVTD)](https://codecov.io/gh/parzival3/chisel-crv)
 
-# Chisel CRV
+# Chisel-CRV
 Chisel CRV is a project that aims to mimic the functionality of SystemVerilog constraint programming and integrates them into [chisel-tester2](https://github.com/ucb-bar/chisel-testers2).
 Chisel CRV combines a Constraint Satisfactory Problem Solver, with some helper classes to create and use random objects inside your tests.
+Currently, only the [jacop](https://github.com/radsz/jacop) backend is supported, but in the future other backends can be added.  
 
 ## Comparison
 ### System Verilog
@@ -109,6 +110,28 @@ val myPacket = new Frame(new Model)
 assert(myPacket.randomize)
 ```
 
+Other usage examples can be found in `src/test/scala/backends/jacop`
+
+# How to use chisel-crv inside your project
+The fastest way to include chisel-crv inside your project is to clone the git repository and publish it locally
+```bash
+git clone https://www.github.com/parzival3/chisel-crv.git
+cd chisel-crv
+sbt publishLocal
+```
+And then add to the `build.sbt`
+```sbt
+libraryDependencies ++= Seq(
+  "parzival3" %% "chisel-crv" % "0.2.2"
+)
+```
+### Grab it from github
+Alternatively, if you don't want to pulish the repository locally, you can grab it directly from github by adding
+```sbt
+lazy val chisel_crv = RootProject(uri("git://github.com/parzival3/chisel-crv.git"))
+lazy val root = Project("root", file(".")).dependsOn(chisel_crv)
+```
+to you `build.sbt` file.
 ## Online Resources
 - [jacop](https://github.com/radsz/jacop)
 - [choco-solver](https://github.com/chocoteam/choco-solver)

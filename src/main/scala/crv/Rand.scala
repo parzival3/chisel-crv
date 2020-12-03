@@ -1,32 +1,35 @@
 package crv
 
-// TODO: we can avoid specifying the name by using reflection
 trait Rand {
+  type U <: Rand
 
   /**
     * Defines the add constraint between two Rand variables
     * @param that a second parameter for the addition constraint
     * @return Rand variable being the result of the addition constraint.
     */
-  def +(that: Rand): Rand
+  def +(that: U): U
 
-  def -(that: Rand): Rand
+  def -(that: U): U
 
-  def *(that: Rand): Rand
+  def *(that: U): U
 
-  def div(that: Rand): Rand
+  def div(that: U): U
 
-  def mod(that: Rand): Rand
+  def mod(that: U): U
 
-  def ^(that: Rand): Rand
+  def ^(that: U): U
 
-  def #\=(that: Rand): Constraint
+  def #\=(that: U): Constraint
 
-  def #<(that: Rand): Constraint
+  def #<(that: U): Constraint
 
-  def #<=(that: Rand): Constraint
+  def #<=(that: U): Constraint
 
-  def #>(that: Rand): Constraint
+  def #>(that: U): Constraint
 
-  def #>=(that: Rand): Constraint
+  def #>=(that: U): Constraint
+
+  def setVar(that: BigInt): Unit
+
 }

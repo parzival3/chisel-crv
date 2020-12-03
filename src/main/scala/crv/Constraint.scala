@@ -1,6 +1,8 @@
 package crv
 
 trait Constraint {
-  def enable():  Unit
-  def disable(): Unit
+  type U
+  def enable():      Unit
+  def disable():     Unit
+  def getConstraint: U
 }

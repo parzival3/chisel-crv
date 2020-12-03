@@ -1,7 +1,7 @@
 package backends.jacop
 
+import org.jacop.constraints.{IfThen, IfThenElse, PrimitiveConstraint}
 import org.jacop.core.IntDomain
-import org.jacop.scala.Model
 import org.jacop.search.{
   DepthFirstSearch,
   IndomainRandom,
@@ -46,10 +46,10 @@ object RandObj {
   }
 }
 
-class RandObj(r: Int = new util.Random().nextInt(), implicit val model: Model = new Model) extends crv.RandObj {
+class RandObj(val _model: Model) extends crv.RandObj {
 
   // We need a reference to the Parent RandomObj in order to enable or disable a constraint
-  implicit val current: RandObj = this
+  implicit val currentModel: Model = _model
   private var nOfCalls = 0
   private val listener = new SimpleSolutionListener[backends.jacop.Rand]
   private val domainDatabase = mutable.Map[Rand, IntDomain]()
@@ -77,7 +77,7 @@ class RandObj(r: Int = new util.Random().nextInt(), implicit val model: Model = 
     */
   private def initializeObject(): Unit = {
     initialize = true
-    problemVariables = model.vars.filter(x => x.isInstanceOf[Rand]).map(_.asInstanceOf[Rand]).toList
+    problemVariables = _model.vars.filter(x => x.isInstanceOf[Rand]).map(_.asInstanceOf[Rand]).toList
     problemVariables.foreach(x => domainDatabase += (x -> x.domain.cloneLight()))
   }
 
@@ -90,10 +90,36 @@ class RandObj(r: Int = new util.Random().nextInt(), implicit val model: Model = 
     nOfCalls += 1
     if (!initialize) initializeObject()
     resetDomains()
+    _model.randcVars.foreach(_.next())
     RandObj.satisfySearch(
-      new SimpleSelect[Rand](problemVariables.toArray, null, new IndomainRandom[Rand](r + nOfCalls)),
+      new SimpleSelect[Rand](problemVariables.toArray, null, new IndomainRandom[Rand](_model.seed + nOfCalls)),
       listener,
-      model
+      _model
     )
+  }
+
+  override def ifThen(constraint: crv.Constraint)(z: crv.Constraint): Constraint = {
+    val newConstraint =
+      new IfThen(
+        constraint.getConstraint.asInstanceOf[PrimitiveConstraint],
+        z.getConstraint.asInstanceOf[PrimitiveConstraint]
+      )
+    _model.constr += newConstraint
+    constraint.disable()
+    z.disable()
+    new Constraint(newConstraint)
+  }
+
+  override def ifThenElse(ifC: crv.Constraint)(thenC: crv.Constraint)(elseC: crv.Constraint): crv.Constraint = {
+    val newConstraint = new IfThenElse(
+      ifC.getConstraint.asInstanceOf[PrimitiveConstraint],
+      thenC.getConstraint.asInstanceOf[PrimitiveConstraint],
+      elseC.getConstraint.asInstanceOf[PrimitiveConstraint]
+    )
+    _model.constr += newConstraint
+    ifC.disable()
+    thenC.disable()
+    elseC.disable()
+    new Constraint(newConstraint)
   }
 }

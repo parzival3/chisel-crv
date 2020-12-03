@@ -1,7 +1,7 @@
 package crv
 
-class ConstraintGroup(group: Constraint*) {
-  val constraints: List[Constraint] = group.toList
-  def enable():    Unit = constraints.foreach(_.enable())
-  def disable():   Unit = constraints.foreach(_.disable())
+trait ConstraintGroup {
+  val constraints: List[Constraint]
+  def enable():  Unit = constraints.foreach(_.enable())
+  def disable(): Unit = constraints.foreach(_.disable())
 }

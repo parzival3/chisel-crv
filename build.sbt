@@ -1,6 +1,8 @@
-ThisBuild / name := "chisel-crv"
+name := "chisel-crv"
 
-ThisBuild / version := "0.1"
+organization := "parzival3"
+
+version := "0.2.0"
 
 scalaVersion := "2.12.10"
 
@@ -9,6 +11,7 @@ ThisBuild / libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.8",
   "org.choco-solver" % "choco-solver" % "4.10.5"
 )
-
+githubOwner := "parzival3"
+githubRepository := "chisel-crv"
 coverageEnabled := true
 

@@ -1,8 +1,7 @@
 package backends.jacop
-import org.jacop.scala.Model
 
-class RandArr(implicit model: Model) extends RandObj {
+class RandArr(val min: Int, val max: Int, implicit val upper: Model) extends RandObj(upper) {
   var size: Rand = new Rand("size")
   var sum:  Rand = new Rand("sum")
-  println(model)
+  println(_model)
 }

@@ -11,4 +11,8 @@ trait RandObj {
   def preRandomize(): Unit = {}
 
   def postRandomize(): Unit = {}
+
+  def ifThen(ifC: Constraint)(thenC: Constraint): Constraint
+
+  def ifThenElse(ifC: Constraint)(thenC: Constraint)(elseC: Constraint): Constraint
 }

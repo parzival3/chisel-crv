@@ -6,6 +6,8 @@ version := "0.2.0"
 
 scalaVersion := "2.12.10"
 
+githubTokenSource := TokenSource.GitConfig("github.token") || TokenSource.Environment("GITHUB_TOKEN")
+
 ThisBuild / libraryDependencies ++= Seq(
   "org.jacop" % "jacop" % "4.7.0",
   "org.scalatest" %% "scalatest" % "3.0.8",

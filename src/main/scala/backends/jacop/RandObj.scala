@@ -63,6 +63,14 @@ class RandObj(val _model: Model) extends crv.RandObj {
     domainDatabase.foreach(k => k._1.domain.setDomain(k._2))
   }
 
+  override def toString: String = {
+    val buffer = new StringBuilder()
+    for (i <- Range(0, _model.n)) {
+      buffer ++= _model.vars(i).toString + ", "
+    }
+    buffer + _model.randcVars.mkString(", ")
+  }
+
   /**
     * Print all the random variables declared inside the current [[RandObj]]
     */

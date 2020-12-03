@@ -310,11 +310,11 @@ class TestRandJacop extends FlatSpec with VerificationContext {
 
   it should "be possible to assign a value to a random variable" in {
     class Packet(model: Model) extends RandObj(model) {
-      override def toString: String = "Packet1"
-      val len:               Rand = new Rand(1, 3)
+      val len: Rand = new Rand(1, 3)
     }
 
     val myPacket = new Packet(new Model)
     myPacket.len.setVar(10)
+    println(myPacket.toString)
   }
 }

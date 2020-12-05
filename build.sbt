@@ -2,8 +2,6 @@ name := "chisel-crv"
 
 organization := "parzival3"
 
-version := "0.2.2"
-
 scalaVersion := "2.12.10"
 
 githubTokenSource := TokenSource.GitConfig("github.token") || TokenSource.Environment("GITHUB_TOKEN")

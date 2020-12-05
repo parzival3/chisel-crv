@@ -16,28 +16,42 @@ jobs:
         with:
           java-version: 1.8
 
+      - name: Clone Repo
+        run: git clone https://github.com/chisel-uvm/chisel-crv.git
+
+      - name: Get Version
+        run: grep "version :=" chisel-crv/build.sbt >> build.sbt
+
+      - name: Copy sbt config
+        run: cp build.sbt chisel-crv/build.sbt
+
       - name: Check formatting
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: sbt scalafmtCheckAll
+        working-directory: chisel-crv
 
       - name: Run tests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run:  sbt clean coverage test
+        working-directory: chisel-crv
 
       - name: Create Coverage Report
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: sbt coverageAggregate
+        working-directory: chisel-crv
 
       - name: CodeCov
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_SECRET }}
+        working-directory: chisel-crv
 
       - name: Publish package
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         run: sbt publishLocal
+        working-directory: chisel-crv
 

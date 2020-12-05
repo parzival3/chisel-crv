@@ -20,7 +20,7 @@ jobs:
         run: git clone https://github.com/chisel-uvm/chisel-crv.git
 
       - name: Get Version
-        run: grep "version :=" chisel-crv/build.sbt >> build.sbt
+        run: grep "version :=" chisel-crv/build.sbt >> build.sbt; cat build.sbt
 
       - name: Copy sbt config
         run: cp build.sbt chisel-crv/build.sbt

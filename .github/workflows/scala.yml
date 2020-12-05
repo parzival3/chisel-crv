@@ -25,8 +25,8 @@ jobs:
       - name: Copy sbt config
         run: cp build.sbt chisel-crv/build.sbt
 
-      -name: Copy plugin sbt
-       run: echo "addSbtPlugin(\"com.codecommit\" % \"sbt-github-packages\" % \"0.5.2\")" >> chisel-crv/project/plugin.sbt
+      - name: Copy plugin sbt
+        run: echo "addSbtPlugin(\"com.codecommit\" % \"sbt-github-packages\" % \"0.5.2\")" >> chisel-crv/project/plugin.sbt
 
       - name: Check formatting
         env:

@@ -54,6 +54,6 @@ jobs:
       - name: Publish package
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
-        run: sbt publishLocal
+        run: sbt publish
         working-directory: chisel-crv
 
